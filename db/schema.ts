@@ -1,17 +1,22 @@
-import { appRepository } from "@/repositories/AppRepository";
 import * as SQLite from "expo-sqlite";
 
 export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
   const DATABASE_VERSION = 1;
 
-  if (DATABASE_VERSION <= 1) {
-    const results = await appRepository.fetchSyncCustomers();
-    if (results.length === 0) {
-      return;
-    }
+  const result = await database.getFirstAsync<{ user_version: number } | null>(
+    'PRAGMA user_version'
+  );
+
+  let currentDbVersion = 0;
+  if (result !== null && result.user_version !== undefined) {
+    currentDbVersion = result.user_version;
   }
 
-  if (DATABASE_VERSION === 1) {
+  if (currentDbVersion >= DATABASE_VERSION) {
+    return;
+  }
+
+  if (currentDbVersion === 0) {
     /*console.log('Dropping tables...');
     await database.execAsync(`DROP TABLE IF EXISTS customers;`);
     await database.execAsync(`DROP TABLE IF EXISTS contract_categories;`);
@@ -140,6 +145,8 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
         person_id INTEGER NULL
       );
     `);
+
+    currentDbVersion = 1;
   }
 
   await database.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

@@ -13,3 +13,10 @@ export interface CustomerDatabase {
   signature?: string;
   sync?: boolean;
 }
+
+export interface ContractCustomerList {
+  id: number;
+  name: string;
+  createdAt: string;
+  sync: boolean;
+}
