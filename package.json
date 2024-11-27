@@ -45,7 +45,8 @@
     "react-native-signature-canvas": "^4.7.2",
     "react-native-table-component": "^1.2.2",
     "react-native-web": "~0.19.13",
-    "react-native-webview": "13.12.2"
+    "react-native-webview": "13.12.2",
+    "expo-network": "~7.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

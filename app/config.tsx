@@ -1,20 +1,25 @@
+import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
 import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Button,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
 } from "react-native";
 export default function Screen() {
   const [refreshing, setRefreshing] = useState(false);
+  const { isConnected } = useConnection();
 
   const handleSyncContractsClick = () => {
+    if (!isConnected) {
+      Alert.alert("Erro!", "Você precisa estar conectado à internet.");
+      return;
+    }
+
     Alert.alert(
       "Você tem certeza que deseja sincronizar os contratos?",
       "Os contratos sincronizados serão excluídos do seu dispositivo e enviado ao servidor.",
@@ -44,12 +49,20 @@ export default function Screen() {
       {refreshing ? (
         <ActivityIndicator size={"large"} color={"#1D643B"} />
       ) : (
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSyncContractsClick}
-        >
-          <Text style={styles.buttonText}>Sincronizar Contratos</Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSyncContractsClick}
+          >
+            <Text style={styles.buttonText}>Sincronizar Contratos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSyncContractsClick}
+          >
+            <Text style={styles.buttonText}>Sincronizar Contratos</Text>
+          </TouchableOpacity>
+        </>
       )}
     </SafeAreaView>
   );
