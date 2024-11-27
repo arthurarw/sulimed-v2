@@ -36,6 +36,10 @@ export default function Screen() {
             <Text style={styles.headerText}>Data de Criação</Text>
             <Text style={styles.headerText}>Sincronizado</Text>
           </View>
+          <FlatList
+            data={data}
+            renderItem={({ item }) => <Text>{item.name}</Text>}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
