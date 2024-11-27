@@ -1,12 +1,12 @@
-import { StatusBar, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 
 export default function Screen() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View>
         <Text>STORE COMPANY</Text>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

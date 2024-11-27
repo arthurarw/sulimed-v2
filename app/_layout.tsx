@@ -44,6 +44,10 @@ export default function RootLayout() {
               }}
             />
             <Drawer.Screen
+              name="contracts/index"
+              options={{ title: "Contratos" }}
+            />
+            <Drawer.Screen
               name="store"
               options={{
                 title: "Cadastrar Contrato PF",
