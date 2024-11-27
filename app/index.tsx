@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StatusBar, StyleSheet, View } from "react-native";
 
 export default function Screen() {
   return (
@@ -16,11 +16,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f0f0f0", // Background color
+    backgroundColor: "#f0f0f0",
+    marginTop: StatusBar.currentHeight || 0,
   },
   logo: {
-    width: 350, // Adjust width
-    height: 350, // Adjust height
-    resizeMode: "contain", // Adjust logo display
+    width: 350,
+    height: 350,
+    resizeMode: "contain",
   },
 });
