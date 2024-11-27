@@ -21,6 +21,7 @@
     "@react-navigation/native": "^7.0.0",
     "@types/react-native-table-component": "^1.2.8",
     "babel-plugin-inline-import": "^3.0.0",
+    "date-fns-tz": "^3.2.0",
     "expo": "~52.0.11",
     "expo-blur": "~14.0.1",
     "expo-constants": "~17.0.3",

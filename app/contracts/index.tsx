@@ -1,8 +1,12 @@
-import { ContractCustomerList, CustomerDatabase } from "@/types/Database";
-import { Link, router } from "expo-router";
+import { appRepository } from "@/repositories/AppRepository";
+import { ContractCustomerList } from "@/types/Database";
+import { formatBrazilTime } from "@/utils/String";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -12,20 +16,51 @@ import {
 } from "react-native";
 
 export default function Screen() {
-  const data: ContractCustomerList[] = [
-    { id: 1, name: "Nome 1", createdAt: "02/02/2024", sync: true },
-    { id: 2, name: "Nome 2", createdAt: "02/02/2024", sync: true },
-    { id: 3, name: "Nome 3", createdAt: "02/02/2024", sync: false },
-    { id: 4, name: "Nome 4", createdAt: "02/02/2024", sync: true },
-    { id: 5, name: "Nome 5", createdAt: "02/02/2024", sync: false },
-    { id: 6, name: "Nome 6", createdAt: "02/02/2024", sync: false },
-    { id: 7, name: "Nome 7", createdAt: "02/02/2024", sync: true },
-    { id: 8, name: "Nome 8", createdAt: "02/02/2024", sync: true },
-    { id: 9, name: "Nome 9", createdAt: "02/02/2024", sync: true },
-  ];
+  const [contracts, setContracts] = useState<ContractCustomerList[]>([]);
+  const [refreshing, setRefreshing] = useState(true);
+
+  const fetchContracts = async () => {
+    setRefreshing(true);
+    const contracts = await appRepository.fetchContracts();
+    setContracts(contracts);
+    setRefreshing(false);
+  };
 
   const handleClick = (id: number) => {
     router.navigate({ pathname: "/contracts/[id]", params: { id } });
+  };
+
+  const insertTest = async () => {
+    for (let i = 0; i < 5; i++) {
+      await appRepository.storeContract({
+        is_company: false,
+        fathers_name: "John Doe",
+        mothers_name: "Jane Doe",
+        observation: "No specific observations.",
+        unity_consumer: "Residential",
+        phone_1: "+1234567890",
+        phone_2: "+0987654321",
+        observation_phone_1: "Primary contact",
+        observation_phone_2: "Secondary contact",
+        name: "Alice Johnson",
+        type: "Individual",
+        email: "alice.johnson@example.com",
+        phone: "+1112223333",
+        telephone: "+4445556666",
+        zipcode: "12345-678",
+        street: "123 Main St",
+        neighborhood: "Downtown",
+        number: "456",
+        city: "Metropolis",
+        state: "NY",
+        signature: "Signed digitally",
+        created_at: "2024-11-27T10:00:00Z",
+        document: "AB123456789",
+        document_2: "CD987654321",
+        external_id: 12345,
+        sync: false,
+      });
+    }
   };
 
   const renderItem = ({
@@ -39,7 +74,7 @@ export default function Screen() {
       <Pressable onPress={() => handleClick(item.id)}>
         <View style={styles.row}>
           <Text style={styles.cell}>{item.name}</Text>
-          <Text style={styles.cell}>{item.createdAt}</Text>
+          <Text style={styles.cell}>{item.created_at}</Text>
           <Text style={styles.cell}>
             {item.sync ? (
               <Text style={styles.success}>Sim</Text>
@@ -52,26 +87,41 @@ export default function Screen() {
     );
   };
 
+  useEffect(() => {
+    //insertTest();
+    fetchContracts();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Contratos Cadastrados</Text>
       <ScrollView horizontal>
-        <View style={styles.listContainer}>
-          <View style={styles.header}>
-            <Text style={[styles.headerText, { width: 100 }]}>Nome</Text>
-            <Text style={[styles.headerText, { width: 100 }]}>
-              Data de Criação
-            </Text>
-            <Text style={[styles.headerText, { width: 100 }]}>
-              Sincronizado
-            </Text>
+        {contracts.length === 0 ? (
+          <Text style={styles.emptyText}>Nenhum contrato cadastrado</Text>
+        ) : (
+          <View style={styles.listContainer}>
+            <View style={styles.header}>
+              <Text style={[styles.headerText, { width: 100 }]}>Nome</Text>
+              <Text style={[styles.headerText, { width: 100 }]}>
+                Data de Criação
+              </Text>
+              <Text style={[styles.headerText, { width: 100 }]}>
+                Sincronizado
+              </Text>
+            </View>
+            <FlatList
+              data={contracts}
+              renderItem={renderItem}
+              keyExtractor={(item, index) => index.toString()}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={fetchContracts}
+                />
+              }
+            />
           </View>
-          <FlatList
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -128,5 +178,9 @@ const styles = StyleSheet.create({
   error: {
     color: "#ff0000",
     fontWeight: "bold",
+  },
+  emptyText: {
+    fontSize: 14,
+    marginTop: 40,
   },
 });

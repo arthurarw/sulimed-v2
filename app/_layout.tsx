@@ -74,6 +74,15 @@ export default function RootLayout() {
                 ),
               }}
             />
+            <Drawer.Screen
+              name="config"
+              options={{
+                title: "Configurações",
+                drawerIcon: ({ color, size }) => (
+                  <Ionicons name="game-controller" size={size} color={color} />
+                ),
+              }}
+            />
           </Drawer>
         </GestureHandlerRootView>
       </ThemeProvider>
