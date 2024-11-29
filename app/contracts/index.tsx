@@ -27,7 +27,7 @@ export default function Screen() {
   };
 
   const handleClick = (id: number) => {
-    router.navigate({ pathname: "/contracts/[id]", params: { id } });
+    router.navigate({ pathname: "../(stacks)/contracts/[id]", params: { id } });
   };
 
   const insertTest = async () => {

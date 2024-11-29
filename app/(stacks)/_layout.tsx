@@ -6,11 +6,10 @@ import { DrawerActions } from "@react-navigation/native";
 const StacksLayout = () => {
   const nav = useNavigation();
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="contracts/[id]"
         options={{
-          headerTitle: "Stack Home",
           headerLeft: () => {
             return (
               <Ionicons

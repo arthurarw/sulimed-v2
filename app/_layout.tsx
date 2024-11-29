@@ -8,6 +8,7 @@ import { Drawer } from "expo-router/drawer";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
+import { DATABASE_NAME } from "@/utils/Settings";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -28,7 +29,7 @@ export default function RootLayout() {
   }
 
   return (
-    <SQLiteProvider databaseName="sulimed.db" onInit={initializeDatabase}>
+    <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
       <ThemeProvider value={DefaultTheme}>
         <GestureHandlerRootView>
           <Drawer

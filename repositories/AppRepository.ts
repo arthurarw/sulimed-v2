@@ -1,4 +1,5 @@
 import { Contract, ContractCustomerList, CustomerDatabase } from "@/types/Database";
+import { DATABASE_NAME } from "@/utils/Settings";
 import * as SQLite from 'expo-sqlite';
 
 class AppRepository {
@@ -9,7 +10,7 @@ class AppRepository {
   }
 
   private async initDatabase() {
-    this.db = await SQLite.openDatabaseAsync("sulimed.db");
+    this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
   }
 
   public async store(data: Omit<CustomerDatabase, "id">) {
@@ -109,6 +110,20 @@ class AppRepository {
   public async remove(id: number) {
     try {
       await this.db.execAsync("DELETE FROM customers WHERE id = " + id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async fetchContract(id: number) {
+    try {
+      const result: Contract = await this.db.getFirstAsync('SELECT * FROM contracts WHERE id = ?', id);
+
+      if (!result) {
+        return null;
+      }
+
+      return result;
     } catch (error) {
       throw error;
     }
