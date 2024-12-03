@@ -84,6 +84,24 @@ export default function RootLayout() {
                 ),
               }}
             />
+            <Drawer.Screen
+              name="contracts/[id]"
+              options={{
+                title: "Informações do Contrato",
+                drawerItemStyle: {
+                  display: "none",
+                },
+              }}
+            />
+            <Drawer.Screen
+              name="contracts/signature"
+              options={{
+                title: "Assinar Contrato",
+                drawerItemStyle: {
+                  display: "none",
+                },
+              }}
+            />
           </Drawer>
         </GestureHandlerRootView>
       </ThemeProvider>

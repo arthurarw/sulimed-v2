@@ -1,7 +1,8 @@
 import { appRepository } from "@/repositories/AppRepository";
 import { Contract } from "@/types/Database";
-import { anonymizeDocument, formatBrazilDateTimeNew } from "@/utils/String";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { formatBrazilDateTimeNew } from "@/utils/String";
+import { router, useLocalSearchParams } from "expo-router";
+import Drawer from "expo-router/drawer";
 import { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -22,13 +23,24 @@ export default function Screen() {
     setContract(contract);
   };
 
+  const handleBackPress = () => {
+    router.navigate({ pathname: "/contracts" });
+  };
+
+  const handleSignatureContract = () => {
+    router.navigate({
+      pathname: "/contracts/signature",
+      params: { contractId: id },
+    });
+  };
+
   useEffect(() => {
     fetchContract();
   }, [id]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
+      <Drawer.Screen options={{ title: "Informações do Contrato" }} />
       {contract ? (
         <>
           <View style={styles.containerText}>
@@ -42,7 +54,7 @@ export default function Screen() {
           </View>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => alert("Hello")}
+            onPress={handleSignatureContract}
           >
             <Text style={styles.buttonText}>Assinar Contrato</Text>
           </TouchableOpacity>
@@ -51,6 +63,9 @@ export default function Screen() {
             onPress={() => alert("Hello")}
           >
             <Text style={styles.buttonText}>Enviar Documentos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonBack} onPress={handleBackPress}>
+            <Text style={styles.buttonText}>Voltar</Text>
           </TouchableOpacity>
         </>
       ) : (
@@ -76,6 +91,18 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#1D643B", // Purple color
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 5, // Rounded corners
+    marginVertical: 10, // Space between buttons
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3, // For Android shadow
+  },
+  buttonBack: {
+    backgroundColor: "#1fb860", // Purple color
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 5, // Rounded corners
