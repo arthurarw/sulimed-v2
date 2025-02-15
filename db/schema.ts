@@ -1,7 +1,7 @@
 import * as SQLite from "expo-sqlite";
 
 export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
-  const DATABASE_VERSION = 1;
+  const DATABASE_VERSION = 3;
 
   const result = await database.getFirstAsync<{ user_version: number } | null>(
     'PRAGMA user_version'
@@ -12,24 +12,25 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
     currentDbVersion = result.user_version;
   }
 
+  console.log(`Current database version: ${currentDbVersion} - Expected version: ${DATABASE_VERSION}`);
+
   if (currentDbVersion >= DATABASE_VERSION) {
     return;
   }
 
-  if (currentDbVersion === 0) {
-    console.log('Dropping tables...');
-    await database.execAsync(`DROP TABLE IF EXISTS contract_categories;`);
-    await database.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
-    await database.execAsync(`DROP TABLE IF EXISTS cities;`);
-    await database.execAsync(`DROP TABLE IF EXISTS contracts;`);
-    await database.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
-    await database.execAsync(`DROP TABLE IF EXISTS streets;`);
-    await database.execAsync(`DROP TABLE IF EXISTS kinships;`);
-    await database.execAsync(`DROP TABLE IF EXISTS dependents;`);
+  console.log('Dropping tables...');
+  await database.execAsync(`DROP TABLE IF EXISTS contract_categories;`);
+  await database.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
+  await database.execAsync(`DROP TABLE IF EXISTS cities;`);
+  await database.execAsync(`DROP TABLE IF EXISTS contracts;`);
+  await database.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
+  await database.execAsync(`DROP TABLE IF EXISTS streets;`);
+  await database.execAsync(`DROP TABLE IF EXISTS kinships;`);
+  await database.execAsync(`DROP TABLE IF EXISTS dependents;`);
 
-    console.log("Creating tables...");
+  console.log("Creating tables...");
 
-    await database.execAsync(`
+  await database.execAsync(`
         CREATE TABLE IF NOT EXISTS contract_categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           price NUMERIC NOT NULL,
@@ -37,7 +38,7 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
         );
       `);
 
-    await database.execAsync(`
+  await database.execAsync(`
         CREATE TABLE IF NOT EXISTS contract_business_categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           price NUMERIC NOT NULL,
@@ -46,18 +47,18 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
         );
       `);
 
-    await database.execAsync(`
+  await database.execAsync(`
         CREATE TABLE IF NOT EXISTS cities (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
+          name TEXT NOT NULL
         );
       `);
 
-    await database.execAsync(`
+  await database.execAsync(`
         CREATE TABLE IF NOT EXISTS contracts (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           is_company BOOLEAN NOT NULL DEFAULT 0,
-          pre_contract TEXT NULL DEFAUT 'A',
+          pre_contract TEXT NULL DEFAULT 'A',
           category_id INTEGER NOT NULL,
           person_name TEXT NULL,
           person_nickname TEXT NULL,
@@ -96,7 +97,7 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
           father_name TEXT NULL,
           mother_name TEXT NULL,
           naturality_city INTEGER NULL,
-          bankslip_installments_generated TEXT NULL 'N',
+          bankslip_installments_generated TEXT NULL DEFAULT 'N',
           bankslip_installments INTEGER NULL,
           membership_fee NUMERIC NULL,
           account_holder_name TEXT NULL,
@@ -110,28 +111,28 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
         );
       `);
 
-    await database.execAsync(`
+  await database.execAsync(`
         CREATE TABLE IF NOT EXISTS neighborhoods (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL
         );
       `);
 
-    await database.execAsync(`
+  await database.execAsync(`
       CREATE TABLE IF NOT EXISTS streets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL
       );
     `);
 
-    await database.execAsync(`
+  await database.execAsync(`
       CREATE TABLE IF NOT EXISTS kinships (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL
       );
     `);
 
-    await database.execAsync(`
+  await database.execAsync(`
       CREATE TABLE IF NOT EXISTS dependents (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         contract_id INTEGER NOT NULL,
@@ -141,8 +142,7 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
       );
     `);
 
-    currentDbVersion = 1;
-  }
-
+  //currentDbVersion = 1;
+  console.log(`Database updated to version ${currentDbVersion}`);
   await database.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
