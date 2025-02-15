@@ -17,46 +17,32 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
   }
 
   if (currentDbVersion === 0) {
-    /*console.log('Dropping tables...');
-    await database.execAsync(`DROP TABLE IF EXISTS customers;`);
+    console.log('Dropping tables...');
     await database.execAsync(`DROP TABLE IF EXISTS contract_categories;`);
+    await database.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
     await database.execAsync(`DROP TABLE IF EXISTS cities;`);
-    await database.execAsync(`DROP TABLE IF EXISTS relationships;`);
     await database.execAsync(`DROP TABLE IF EXISTS contracts;`);
     await database.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
     await database.execAsync(`DROP TABLE IF EXISTS streets;`);
-    await database.execAsync(`DROP TABLE IF EXISTS kinships;`);*/
+    await database.execAsync(`DROP TABLE IF EXISTS kinships;`);
+    await database.execAsync(`DROP TABLE IF EXISTS dependents;`);
 
     console.log("Creating tables...");
 
     await database.execAsync(`
-        CREATE TABLE IF NOT EXISTS customers (
+        CREATE TABLE IF NOT EXISTS contract_categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          type TEXT NOT NULL,
-          email TEXT NULL,
-          phone TEXT NULL,
-          telephone TEXT NULL,
-          zipcode TEXT NULL,
-          street TEXT NULL,
-          neighborhood TEXT NULL,
-          number TEXT NULL,
-          city TEXT NULL,
-          state TEXT NULL,
-          signature TEXT NULL,
-          created_at TEXT NULL,
-          document TEXT NULL,
-          document_2 TEXT NULL,
-          external_id INTEGER NULL,
-          sync BOOLEAN NOT NULL DEFAULT 0
+          price NUMERIC NOT NULL,
+          description TEXT NOT NULL
         );
       `);
 
     await database.execAsync(`
-        CREATE TABLE IF NOT EXISTS contract_categories (
+        CREATE TABLE IF NOT EXISTS contract_business_categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          external_id INTEGER NOT NULL,
-          description TEXT NOT NULL
+          price NUMERIC NOT NULL,
+          description TEXT NOT NULL,
+          max_colabs INTEGER NULL DEFAULT 0
         );
       `);
 
@@ -64,17 +50,6 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
         CREATE TABLE IF NOT EXISTS cities (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
-          initials TEXT NOT NULL,
-          external_id INTEGER NULL,
-          state_id INTEGER NULL
-        );
-      `);
-
-    await database.execAsync(`
-        CREATE TABLE IF NOT EXISTS relationships (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          external_id INTEGER NOT NULL
         );
       `);
 
@@ -82,30 +57,55 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
         CREATE TABLE IF NOT EXISTS contracts (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           is_company BOOLEAN NOT NULL DEFAULT 0,
-          fathers_name TEXT NULL,
-          mothers_name TEXT NULL,
+          pre_contract TEXT NULL DEFAUT 'A',
+          category_id INTEGER NOT NULL,
+          person_name TEXT NULL,
+          person_nickname TEXT NULL,
+          person_observation TEXT NULL,
+          gender INTEGER NULL DEFAULT 1,
+          civil_state INTEGER NULL DEFAULT 1,
           observation TEXT NULL,
           unity_consumer TEXT NULL,
+          dealership_id INTEGER NULL,
           phone_1 TEXT NULL,
           phone_2 TEXT NULL,
+          cellphone TEXT NULL,
           observation_phone_1 TEXT NULL,
           observation_phone_2 TEXT NULL,
+          observation_cellphone TEXT NULL,
           name TEXT NOT NULL,
           type TEXT NOT NULL,
           email TEXT NULL,
           phone TEXT NULL,
           telephone TEXT NULL,
           zipcode TEXT NULL,
-          street TEXT NULL,
-          neighborhood TEXT NULL,
+          street_id INTEGER NULL,
+          neighborhood_id INTEGER NULL,
           number TEXT NULL,
-          city TEXT NULL,
-          state TEXT NULL,
+          city_id INTEGER NULL,
           signature TEXT NULL,
           created_at TEXT NULL,
+          sale_at TEXT NULL,
+          contract_at TEXT NULL,
           document TEXT NULL,
           document_2 TEXT NULL,
-          external_id INTEGER NULL,
+          mensality_price NUMERIC NULL,
+          due_contract_day INTEGER NULL DEFAULT 10,
+          observation_remote TEXT NULL,
+          parents_address TEXT NULL,
+          father_name TEXT NULL,
+          mother_name TEXT NULL,
+          naturality_city INTEGER NULL,
+          bankslip_installments_generated TEXT NULL 'N',
+          bankslip_installments INTEGER NULL,
+          membership_fee NUMERIC NULL,
+          account_holder_name TEXT NULL,
+          account_holder_type TEXT NULL DEFAULT 'F',
+          account_document TEXT NULL,
+          account_document_2 TEXT NULL,
+          action_registration TEXT NULL DEFAULT 'I',
+          action_registration_send TEXT NULL DEFAULT 'N',
+          installation_partner TEXT NULL,
           sync BOOLEAN NOT NULL DEFAULT 0
         );
       `);
@@ -113,36 +113,31 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
     await database.execAsync(`
         CREATE TABLE IF NOT EXISTS neighborhoods (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          external_id INTEGER NULL,
-          city_id INTEGER NULL
+          name TEXT NOT NULL
         );
       `);
 
     await database.execAsync(`
       CREATE TABLE IF NOT EXISTS streets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        external_id INTEGER NULL,
-        city_id INTEGER NULL
+        name TEXT NOT NULL
       );
     `);
 
     await database.execAsync(`
       CREATE TABLE IF NOT EXISTS kinships (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        external_id INTEGER NULL
+        name TEXT NOT NULL
       );
     `);
 
     await database.execAsync(`
       CREATE TABLE IF NOT EXISTS dependents (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id INTEGER NOT NULL,
         name TEXT NOT NULL,
         birthday TEXT NULL,
-        kinship_id INTEGER NULL,
-        person_id INTEGER NULL
+        kinship_name TEXT NULL
       );
     `);
 
