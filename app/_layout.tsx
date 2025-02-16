@@ -40,7 +40,16 @@ export default function RootLayout() {
             }}
           >
             <Drawer.Screen
-              name="index" // This is the name of the page and must match the url from root
+              name="index"
+              options={{
+                title: "Login",
+                drawerIcon: ({ color, size }) => (
+                  <Ionicons name="home" size={size} color={color} />
+                ),
+              }}
+            />
+            <Drawer.Screen
+              name="home" // This is the name of the page and must match the url from root
               options={{
                 title: "Home",
                 drawerIcon: ({ color, size }) => (

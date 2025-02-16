@@ -16,10 +16,12 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-picker/picker": "2.9.0",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/drawer": "^7.0.12",
     "@react-navigation/native": "^7.0.0",
     "@types/react-native-table-component": "^1.2.8",
+    "axios": "^1.7.9",
     "babel-plugin-inline-import": "^3.0.0",
     "date-fns-tz": "^3.2.0",
     "expo": "~52.0.11",
@@ -49,7 +51,7 @@
     "react-native-table-component": "^1.2.2",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.2",
-    "@react-native-picker/picker": "2.9.0"
+    "expo-secure-store": "~14.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
