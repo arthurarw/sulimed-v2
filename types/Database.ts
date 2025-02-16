@@ -50,3 +50,14 @@ export interface Contract {
   external_id: number;
   sync: boolean;
 }
+
+export interface LocalCity {
+  id: number;
+  name: string;
+}
+
+export interface LocalCategory {
+  id: number;
+  description: string;
+  price: number;
+}

@@ -60,7 +60,7 @@ export default function RootLayout() {
             <Drawer.Screen
               name="store"
               options={{
-                title: "Cadastrar Contrato PF",
+                title: "Cadastrar Contrato Individual",
                 drawerIcon: ({ color, size }) => (
                   <Ionicons name="person-circle" size={size} color={color} />
                 ),
@@ -69,7 +69,7 @@ export default function RootLayout() {
             <Drawer.Screen
               name="storeCompany"
               options={{
-                title: "Cadastrar Contrato PJ",
+                title: "Cadastrar Contrato Empresarial",
                 drawerIcon: ({ color, size }) => (
                   <Ionicons name="business" size={size} color={color} />
                 ),

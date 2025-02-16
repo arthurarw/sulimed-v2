@@ -1,4 +1,4 @@
-import { Contract, ContractCustomerList, CustomerDatabase } from "@/types/Database";
+import { Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity } from "@/types/Database";
 import { DATABASE_NAME } from "@/utils/Settings";
 import * as SQLite from 'expo-sqlite';
 
@@ -187,6 +187,28 @@ class AppRepository {
 
         await this.setSyncConcluded(customer.id);
       });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async fetchCities() {
+    try {
+      const query = "SELECT id, name FROM cities ORDER BY name ASC";
+      const results: LocalCity[] = await this.db.getAllAsync(query);
+
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async fetchBusinessContracts() {
+    try {
+      const query = "SELECT id, description, price FROM contract_business_categories ORDER BY description ASC";
+      const results: LocalCategory[] = await this.db.getAllAsync(query);
+
+      return results;
     } catch (error) {
       throw error;
     }
