@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import { useStorageState } from "@/hooks/useStorageState";
 import { Text, View } from "react-native";
+import AuthService from "@/services/AuthService";
 
 const AuthContext = createContext<{
   signIn: () => void;
@@ -25,10 +26,13 @@ export function SessionProvider(props: React.PropsWithChildren) {
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
-          // Add your login logic here
-          // For example purposes, we'll just set a fake session in storage
-          setSession("John Doe");
+        signIn: async () => {
+          const login = await AuthService.login("admin", "admin");
+          if (!login.id) {
+            return;
+          }
+
+          setSession(`${login.id}`);
         },
         signOut: () => {
           setSession(null);

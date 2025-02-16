@@ -1,19 +1,28 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 class AuthService {
-  private apiUrl: string;
+  private client: AxiosInstance;
 
-  constructor(apiUrl: string) {
-    this.apiUrl = apiUrl;
+  constructor() {
+    this.client = axios.create({
+      baseURL: 'http://179.108.169.90:8088/ecard',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
   }
 
-  async login(username: string, password: string) {
+  async login(username: string, password: string): Promise<{ id: number, name: string, token: string }> {
     try {
-      const response = await axios.post(`${this.apiUrl}/login`, {
+      /*const response = await axios.post(`/login`, {
         username,
         password
       });
-      return response.data;
+
+      return response.data;*/
+
+      return { id: 1, name: 'admin', token: 'bla' };
     } catch (error) {
       throw new Error('Login failed');
     }
@@ -21,7 +30,7 @@ class AuthService {
 
   async logout(token: string) {
     try {
-      const response = await axios.post(`${this.apiUrl}/logout`, {}, {
+      const response = await axios.post(`/logout`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -33,4 +42,4 @@ class AuthService {
   }
 }
 
-export default AuthService;
+export default new AuthService();

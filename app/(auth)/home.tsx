@@ -33,7 +33,7 @@ export default function Screen() {
   return (
     <SafeAreaView style={styles.container}>
       <Image
-        source={require("../assets/images/logo-sulimed.png")} // Replace with your logo file path
+        source={require("../../assets/images/logo-sulimed.png")} // Replace with your logo file path
         style={styles.logo}
       />
       <Text>{version}</Text>
