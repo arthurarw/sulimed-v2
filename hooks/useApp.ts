@@ -1,5 +1,5 @@
 import { appRepository } from "@/repositories/AppRepository";
-import { LocalCategory, LocalCity } from "@/types/Database";
+import { LocalCategory, LocalCity, LocalNeighborhood, LocalStreet } from "@/types/Database";
 
 export const useApp = () => {
   async function fetchCities(): Promise<LocalCity[]> {
@@ -20,5 +20,23 @@ export const useApp = () => {
     }
   }
 
-  return { fetchCities, fetchBusinessContracts };
+  async function fetchStreets(): Promise<LocalStreet[]> {
+    try {
+      return await appRepository.fetchStreets();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  async function fetchNeighborhoods(): Promise<LocalNeighborhood[]> {
+    try {
+      return await appRepository.fetchNeighborhoods();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  return { fetchCities, fetchBusinessContracts, fetchStreets, fetchNeighborhoods };
 };

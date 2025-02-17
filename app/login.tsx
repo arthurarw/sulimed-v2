@@ -19,17 +19,20 @@ export default function Screen() {
   const { authState, onLogin } = useAuth();
 
   const login = async () => {
-    console.log(email, password);
+    if (!email || !password) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+
     const result = await onLogin(email, password);
-    console.log("BBBBBBB");
-    console.log(result);
     if (result && result.authenticated) {
-      router.push("/(app)/index");
+      router.replace("/");
       alert("Login efetuado com sucesso!");
       return;
     }
 
-    alert("Erro ao efetuar login!");
+    alert("Erro ao efetuar o login!");
+    return;
   };
 
   return (

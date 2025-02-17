@@ -38,6 +38,28 @@ export default function Screen() {
     );
   };
 
+  const handleLogout = () => {
+    if (!isConnected) {
+      Alert.alert("Erro!", "Você precisa estar conectado à internet.");
+      return;
+    }
+
+    Alert.alert(
+      "Você tem certeza que deseja sair?",
+      "Você será redirecionado para a tela de login e todas as informações serão APAGADAS.",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Sim",
+          onPress: onLogout,
+        },
+      ],
+    );
+  };
+
   const handleSyncContracts = async () => {
     setRefreshing(true);
     console.log("Syncing contracts...");
@@ -64,7 +86,7 @@ export default function Screen() {
           >
             <Text style={styles.buttonText}>Sincronizar Contratos</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonError} onPress={onLogout}>
+          <TouchableOpacity style={styles.buttonError} onPress={handleLogout}>
             <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>
         </>

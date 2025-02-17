@@ -1,7 +1,7 @@
 import * as SQLite from "expo-sqlite";
 
 export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
-  const DATABASE_VERSION = 5;
+  const DATABASE_VERSION = 7;
 
   const result = await database.getFirstAsync<{ user_version: number } | null>(
     'PRAGMA user_version'
@@ -60,7 +60,8 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
           is_company BOOLEAN NOT NULL DEFAULT 0,
           colab_id INTEGER NULL,
           pre_contract TEXT NULL DEFAULT 'A',
-          category_id INTEGER NOT NULL,
+          category_id INTEGER NULL,
+          category_business_id INTEGER NULL,
           person_type TEXT NULL DEFAULT 'F',
           person_name TEXT NULL,
           person_nickname TEXT NULL,
@@ -79,9 +80,8 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
           name TEXT NOT NULL,
           type TEXT NOT NULL,
           email TEXT NULL,
-          phone TEXT NULL,
-          telephone TEXT NULL,
           zipcode TEXT NULL,
+          complement TEXT NULL,
           street_id INTEGER NULL,
           neighborhood_id INTEGER NULL,
           number TEXT NULL,
@@ -92,6 +92,7 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
           contract_at TEXT NULL,
           document TEXT NULL,
           document_2 TEXT NULL,
+          company_fundation_at TEXT NULL,
           mensality_price NUMERIC NULL,
           due_contract_day INTEGER NULL DEFAULT 10,
           observation_remote TEXT NULL,

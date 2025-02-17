@@ -1,12 +1,9 @@
 import { useConnection } from "@/hooks/useConnection";
-import { City } from "@/types/Ecard";
 import { useEffect, useState } from "react";
 import {
   Alert,
   SafeAreaView,
   ScrollView,
-  StatusBar,
-  StyleSheet,
   TextInput,
   Text,
   View,
@@ -16,17 +13,32 @@ import { Controller, useForm } from "react-hook-form";
 import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import { useApp } from "@/hooks/useApp";
-import { LocalCategory, LocalCity } from "@/types/Database";
+import {
+  LocalCategory,
+  LocalCity,
+  LocalNeighborhood,
+  LocalStreet,
+} from "@/types/Database";
 import { styleStore } from "@/styles/styles";
 import { MaskedTextInput } from "react-native-mask-text";
+import { useAuth } from "@/contexts/AuthContext";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function Screen() {
+  const { authState } = useAuth();
   const { isConnected } = useConnection();
-  const { fetchCities, fetchBusinessContracts } = useApp();
+  const {
+    fetchCities,
+    fetchBusinessContracts,
+    fetchStreets,
+    fetchNeighborhoods,
+  } = useApp();
   const [cities, setCities] = useState<LocalCity[]>([]);
   const [businessContracts, setBusinessContracts] = useState<LocalCategory[]>(
     [],
   );
+  const [streets, setStreets] = useState<LocalStreet[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<LocalNeighborhood[]>([]);
 
   const {
     control,
@@ -45,9 +57,18 @@ export default function Screen() {
       zipcode: "",
       state: "",
       city_id: "",
-      street: "",
-      neighborhood: "",
+      street_id: "",
+      neighborhood_id: "",
       number: "",
+      person_nickname: "",
+      person_type: "J",
+      colab_id: authState ? authState.userId : "",
+      phone_1: "",
+      phone_2: "",
+      observation_phone_1: "",
+      observation_phone_2: "",
+      complement: "",
+      company_fundation_at: "",
     },
   });
 
@@ -104,8 +125,30 @@ export default function Screen() {
       }
     };
 
+    const streets = async () => {
+      try {
+        const response = await fetchStreets();
+        setStreets(response);
+      } catch (error) {
+        Alert.alert("Erro", "Ooops!! Ocorreu um erro ao buscar as ruas.");
+        throw error;
+      }
+    };
+
+    const neighborhoods = async () => {
+      try {
+        const response = await fetchNeighborhoods();
+        setNeighborhoods(response);
+      } catch (error) {
+        Alert.alert("Erro", "Ooops!! Ocorreu um erro ao buscar os bairros.");
+        throw error;
+      }
+    };
+
     cities();
     businessContracts();
+    streets();
+    neighborhoods();
   }, []);
 
   return (
@@ -120,12 +163,12 @@ export default function Screen() {
               onBlur={onBlur}
               style={styleStore.input}
             >
-              <Picker.Item label="Selecione a Cidade" value="" />
-              {businessContracts.map((contract, index) => (
+              <Picker.Item label="Selecione a Categoria" value="" />
+              {businessContracts.map((item, index) => (
                 <Picker.Item
                   key={index}
-                  label={`${contract.description} - R$${contract.price ?? 0}`}
-                  value={contract.id}
+                  label={`${item.description} - R$${item.price ?? 0}`}
+                  value={item.id}
                 />
               ))}
             </Picker>
@@ -158,20 +201,22 @@ export default function Screen() {
 
         <Controller
           control={control}
-          rules={{ required: "O nome é obrigatório." }}
+          rules={{ required: "O nome fantasia é obrigatório." }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styleStore.input}
-              placeholder="Nome"
+              placeholder="Nome Fantasia"
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
             />
           )}
-          name="name"
+          name="person_nickname"
         />
-        {errors.name && (
-          <Text style={styleStore.errorText}>{errors.name.message}</Text>
+        {errors.person_nickname && (
+          <Text style={styleStore.errorText}>
+            {errors.person_nickname.message}
+          </Text>
         )}
 
         <Controller
@@ -192,23 +237,6 @@ export default function Screen() {
         />
         {errors.document && (
           <Text style={styleStore.errorText}>{errors.document.message}</Text>
-        )}
-
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styleStore.input}
-              placeholder="RG"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-          )}
-          name="document2"
-        />
-        {errors.document2 && (
-          <Text style={styleStore.errorText}>{errors.document2.message}</Text>
         )}
 
         <Controller
@@ -250,10 +278,30 @@ export default function Screen() {
               keyboardType="phone-pad"
             />
           )}
-          name="phone"
+          name="phone_1"
         />
-        {errors.phone && (
-          <Text style={styleStore.errorText}>{errors.phone.message}</Text>
+        {errors.phone_1 && (
+          <Text style={styleStore.errorText}>{errors.phone_1.message}</Text>
+        )}
+
+        <Controller
+          control={control}
+          rules={{ required: "O campo é obrigatório." }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styleStore.input}
+              placeholder="Observação Celular"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+          )}
+          name="observation_phone_1"
+        />
+        {errors.observation_phone_1 && (
+          <Text style={styleStore.errorText}>
+            {errors.observation_phone_1.message}
+          </Text>
         )}
 
         <Controller
@@ -269,10 +317,29 @@ export default function Screen() {
               keyboardType="phone-pad"
             />
           )}
-          name="telephone"
+          name="phone_2"
         />
-        {errors.telephone && (
-          <Text style={styleStore.errorText}>{errors.telephone.message}</Text>
+        {errors.phone_2 && (
+          <Text style={styleStore.errorText}>{errors.phone_2.message}</Text>
+        )}
+
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styleStore.input}
+              placeholder="Observação Telefone"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+          )}
+          name="observation_phone_2"
+        />
+        {errors.observation_phone_2 && (
+          <Text style={styleStore.errorText}>
+            {errors.observation_phone_2.message}
+          </Text>
         )}
 
         <Controller
@@ -300,35 +367,16 @@ export default function Screen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styleStore.input}
-              placeholder="Rua"
+              placeholder="Complemento"
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
             />
           )}
-          name="street"
+          name="complement"
         />
-        {errors.street && (
-          <Text style={styleStore.errorText}>{errors.street.message}</Text>
-        )}
-
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styleStore.input}
-              placeholder="Bairro"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-          )}
-          name="neighborhood"
-        />
-        {errors.neighborhood && (
-          <Text style={styleStore.errorText}>
-            {errors.neighborhood.message}
-          </Text>
+        {errors.complement && (
+          <Text style={styleStore.errorText}>{errors.complement.message}</Text>
         )}
 
         <Controller
@@ -357,9 +405,53 @@ export default function Screen() {
               onBlur={onBlur}
               style={styleStore.input}
             >
+              <Picker.Item label="Selecione a Rua" value="" />
+              {streets.map((item, index) => (
+                <Picker.Item key={index} label={item.name} value={item.id} />
+              ))}
+            </Picker>
+          )}
+          name="street_id"
+        />
+        {errors.street_id && (
+          <Text style={styleStore.errorText}>{errors.street_id.message}</Text>
+        )}
+
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Picker
+              selectedValue={value}
+              onValueChange={onChange}
+              onBlur={onBlur}
+              style={styleStore.input}
+            >
+              <Picker.Item label="Selecione o Bairro" value="" />
+              {neighborhoods.map((item, index) => (
+                <Picker.Item key={index} label={item.name} value={item.id} />
+              ))}
+            </Picker>
+          )}
+          name="neighborhood_id"
+        />
+        {errors.neighborhood_id && (
+          <Text style={styleStore.errorText}>
+            {errors.neighborhood_id.message}
+          </Text>
+        )}
+
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Picker
+              selectedValue={value}
+              onValueChange={onChange}
+              onBlur={onBlur}
+              style={styleStore.input}
+            >
               <Picker.Item label="Selecione a Cidade" value="" />
-              {cities.map((city, index) => (
-                <Picker.Item key={index} label={city.name} value={city.id} />
+              {cities.map((item, index) => (
+                <Picker.Item key={index} label={item.name} value={item.id} />
               ))}
             </Picker>
           )}

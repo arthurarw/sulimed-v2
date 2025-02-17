@@ -1,5 +1,8 @@
 import { Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity } from "@/types/Database";
 import { DATABASE_NAME } from "@/utils/Settings";
+import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+import { ptBR } from 'date-fns/locale';
 import * as SQLite from 'expo-sqlite';
 
 class AppRepository {
@@ -43,16 +46,17 @@ class AppRepository {
     }
   }
 
-  public async storeContract(data: Omit<Contract, "id">) {
+  public async storeBusinessContract(data: Omit<Contract, "id">) {
     const statement = await this.db.prepareAsync(
-      "INSERT INTO contracts (is_company, fathers_name, mothers_name, observation, unity_consumer, phone_1, phone_2, observation_phone_1, observation_phone_2, name, type, email, phone, telephone, zipcode, street, neighborhood, number, city, state, signature, created_at, document, document_2, external_id, sync) VALUES ($is_company, $fathers_name, $mothers_name, $observation, $unity_consumer, $phone_1, $phone_2, $observation_phone_1, $observation_phone_2, $name, $type, $email, $phone, $telephone, $zipcode, $street, $neighborhood, $number, $city, $state, $signature, $created_at, $document, $document_2, $external_id, $sync)",
+      "INSERT INTO contracts (is_company, colab_id, pre_contract,category_id,person_type,person_name,person_nickname,person_observation,gender,civil_state,observation,unity_consumer,dealership_id,phone_1,phone_2,cellphone,observation_phone_1,observation_phone_2,observation_cellphone,name,type,email,phone,telephone,zipcode,street_id,neighborhood_id,number,city_id,signature,created_at,sale_at,contract_at,document,document_2,mensality_price,due_contract_day,observation_remote,parents_address,father_name,mother_name,naturality_city,bankslip_installments_generated,bankslip_installments,membership_fee,account_holder_name,account_holder_type,account_document,account_document_2,action_registration,action_registration_send,installation_partner) VALUES ($is_company, $colab_id, $pre_contract, $category_id, $person_type, $person_name, $person_nickname, $person_observation, $gender, $civil_state, $observation, $unity_consumer, $dealership_id, $phone_1, $phone_2, $cellphone, $observation_phone_1, $observation_phone_2, $observation_cellphone, $name, $type, $email, $phone, $telephone, $zipcode, $street_id, $neighborhood_id, $number, $city_id, $signature, $created_at, $sale_at, $contract_at, $document, $document_2, $mensality_price, $due_contract_day, $observation_remote, $parents_address, $father_name, $mother_name, $naturality_city, $bankslip_installments_generated, $bankslip_installments, $membership_fee, $account_holder_name, $account_holder_type, $account_document, $account_document_2, $action_registration, $action_registration_send, $installation_partner)"
     );
 
     try {
       const result = await statement.executeAsync({
-        $is_company: data.is_company ?? '',
-        $fathers_name: data.fathers_name ?? '',
-        $mothers_name: data.mothers_name ?? '',
+        $is_company: true,
+        $colab_id: data.colab_id ?? '',
+        $father_name: data.father_name ?? '',
+        $mother_name: data.mother_name ?? '',
         $observation: data.observation ?? '',
         $unity_consumer: data.unity_consumer ?? '',
         $phone_1: data.phone_1 ?? '',
@@ -65,16 +69,13 @@ class AppRepository {
         $phone: data.phone ?? '',
         $telephone: data.telephone ?? '',
         $zipcode: data.zipcode ?? '',
-        $street: data.street ?? '',
-        $neighborhood: data.neighborhood ?? '',
+        $street_id: data.street_id ?? '',
+        $neighborhood_id: data.neighborhood_id ?? '',
         $number: data.number ?? '',
-        $city: data.city ?? '',
-        $state: data.state ?? '',
-        $signature: data.signature ?? '',
-        $created_at: data.created_at ?? '',
+        $city_id: data.city_id ?? '',
+        $created_at: formatInTimeZone(new Date(), 'America/Sao_Paulo', 'yyyy-MM-dd HH:mm:ss', { locale: ptBR }),
         $document: data.document ?? '',
         $document_2: data.document_2 ?? '',
-        $external_id: data.external_id ?? '',
         $sync: data.sync ?? true,
       });
 
@@ -207,6 +208,28 @@ class AppRepository {
     try {
       const query = "SELECT id, description, price FROM contract_business_categories ORDER BY description ASC";
       const results: LocalCategory[] = await this.db.getAllAsync(query);
+
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async fetchStreets() {
+    try {
+      const query = "SELECT id, name FROM streets ORDER BY name ASC";
+      const results: LocalCity[] = await this.db.getAllAsync(query);
+
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async fetchNeighborhoods() {
+    try {
+      const query = "SELECT id, name FROM neighborhoods ORDER BY name ASC";
+      const results: LocalCity[] = await this.db.getAllAsync(query);
 
       return results;
     } catch (error) {
