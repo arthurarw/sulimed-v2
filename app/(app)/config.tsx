@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
 import { useState } from "react";
@@ -13,6 +14,7 @@ import {
 export default function Screen() {
   const [refreshing, setRefreshing] = useState(false);
   const { isConnected } = useConnection();
+  const { onLogout } = useAuth();
 
   const handleSyncContractsClick = () => {
     if (!isConnected) {
@@ -62,6 +64,9 @@ export default function Screen() {
           >
             <Text style={styles.buttonText}>Sincronizar Contratos</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonError} onPress={onLogout}>
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
         </>
       )}
     </SafeAreaView>
@@ -77,6 +82,19 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#1D643B", // Purple color
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 5, // Rounded corners
+    marginTop: 50,
+    marginVertical: 10, // Space between buttons
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3, // For Android shadow
+  },
+  buttonError: {
+    backgroundColor: "#ff0000", // Red color
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 5, // Rounded corners

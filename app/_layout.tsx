@@ -1,14 +1,11 @@
-import { SessionProvider } from "@/contexts/ProviderContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Slot } from "expo-router";
 
-export const unstable_settings = {
-  initialRouteName: "login",
-};
-
-export default function RootLayoutNav() {
+export default function Root() {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <Slot />
-    </SessionProvider>
+    </AuthProvider>
   );
 }
+

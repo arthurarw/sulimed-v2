@@ -9,21 +9,18 @@ import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { DATABASE_NAME } from "@/utils/Settings";
-import { useSession } from "@/contexts/ProviderContext";
 import { Redirect } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function AppLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const { session } = useSession();
 
-  if (!session) {
-    return <Redirect href="/" />;
-  }
+  const { authState, onLogout } = useAuth();
 
   useEffect(() => {
     if (loaded) {
@@ -34,6 +31,12 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+
+  if (authState && authState.authenticated === false) {
+    return <Redirect href="/login" />;
+  }
+
+  console.log(authState);
 
   return (
     <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
@@ -47,16 +50,7 @@ export default function RootLayout() {
             }}
           >
             <Drawer.Screen
-              name="index"
-              options={{
-                title: "Login",
-                drawerIcon: ({ color, size }) => (
-                  <Ionicons name="home" size={size} color={color} />
-                ),
-              }}
-            />
-            <Drawer.Screen
-              name="home" // This is the name of the page and must match the url from root
+              name="index" // This is the name of the page and must match the url from root
               options={{
                 title: "Home",
                 drawerIcon: ({ color, size }) => (
@@ -76,7 +70,7 @@ export default function RootLayout() {
             <Drawer.Screen
               name="store"
               options={{
-                title: "Cadastrar Contrato Individual",
+                title: "Contrato Individual",
                 drawerIcon: ({ color, size }) => (
                   <Ionicons name="person-circle" size={size} color={color} />
                 ),
@@ -85,7 +79,7 @@ export default function RootLayout() {
             <Drawer.Screen
               name="storeCompany"
               options={{
-                title: "Cadastrar Contrato Empresarial",
+                title: "Contrato Empresarial",
                 drawerIcon: ({ color, size }) => (
                   <Ionicons name="business" size={size} color={color} />
                 ),
