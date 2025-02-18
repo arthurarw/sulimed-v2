@@ -1,5 +1,5 @@
 import AppService from "@/services/AppService";
-import { Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity, LocalNeighborhood } from "@/types/Database";
+import { Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity, LocalKinship, LocalNeighborhood } from "@/types/Database";
 import { DATABASE_NAME } from "@/utils/Settings";
 import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
@@ -207,8 +207,17 @@ class AppRepository {
 
   public async fetchBusinessContracts() {
     try {
-      const query = "SELECT id, description, price FROM contract_business_categories ORDER BY description ASC";
+      const query = "SELECT id, description, price, max_colabs FROM contract_business_categories ORDER BY description ASC";
       const results: LocalCategory[] = await this.db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        console.log('Fetching business contracts from server...');
+        await AppService.fetchBusinessCategories().then(async (categories) => {
+          categories.map(async (category) => {
+            await this.db.execAsync(`INSERT INTO contract_business_categories (id, description, price, max_colabs) VALUES ('${category.idCategoriaContratoEmpresarial}', '${category.dsCategoriaContratoEmpresarial}', '${category.valor}', '${category.nroMaximoFuncionarios}')`);
+          });
+        });
+      }
 
       return results;
     } catch (error) {
@@ -238,6 +247,45 @@ class AppRepository {
     }
   }
 
+  public async fetchKinships() {
+    try {
+      const query = "SELECT id, name FROM kinships ORDER BY name ASC";
+      const results: LocalKinship[] = await this.db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        console.log('Fetching kinships from server...');
+        await AppService.fetchKinships().then(async (kinships) => {
+          kinships.map(async (kinship) => {
+            await this.db.execAsync(`INSERT INTO kinships (id, name) VALUES ('${kinship.idGrauParentesco}', '${kinship.dsGrauParentesco}')`);
+          });
+        });
+      }
+
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async fetchBusinessCategory() {
+    try {
+      const query = "SELECT id, name FROM kinships ORDER BY name ASC";
+      const results: LocalKinship[] = await this.db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        console.log('Fetching kinships from server...');
+        await AppService.fetchKinships().then(async (kinships) => {
+          kinships.map(async (kinship) => {
+            await this.db.execAsync(`INSERT INTO kinships (id, name) VALUES ('${kinship.idGrauParentesco}', '${kinship.dsGrauParentesco}')`);
+          });
+        });
+      }
+
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   public async storeNeighborhood(id: number, name: string) {
     const statement = await this.db.prepareAsync(

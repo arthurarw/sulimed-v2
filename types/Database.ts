@@ -93,8 +93,14 @@ export interface LocalNeighborhood {
   name: string;
 }
 
+export interface LocalKinship {
+  id: number;
+  name: string;
+}
+
 export interface LocalCategory {
   id: number;
   description: string;
   price: number;
+  max_colabs: number;
 }

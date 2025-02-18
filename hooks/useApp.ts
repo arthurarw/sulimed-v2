@@ -38,5 +38,14 @@ export const useApp = () => {
     }
   }
 
+  async function fetchKinships() {
+    try {
+      return await appRepository.fetchNeighborhoods();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
   return { fetchCities, fetchBusinessContracts, fetchStreets, fetchNeighborhoods };
 };

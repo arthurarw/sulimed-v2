@@ -54,4 +54,11 @@ export const styleStore = StyleSheet.create({
     color: "#c0392b",
     marginBottom: 10,
   },
+  dropdown: {
+    height: 50,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
 });

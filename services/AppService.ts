@@ -1,4 +1,4 @@
-import { City, ContractCategories, Kinship, Neighborhood, PersonContract, Street } from '@/types/Ecard';
+import { City, ContractBusinessCategories, ContractCategories, Kinship, Neighborhood, PersonContract, Street } from '@/types/Ecard';
 import { formatBrazilDate, formatBrazilTime } from '@/utils/String';
 import axios, { AxiosInstance } from 'axios';
 
@@ -187,9 +187,21 @@ class AppApi {
     }
   }
 
-  public async fetchContractCategories(): Promise<ContractCategories[]> {
+  public async fetchCategories(): Promise<ContractCategories[]> {
     try {
       const { data } = await this.client.get('/categoriaContrato');
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+
+  public async fetchBusinessCategories(): Promise<ContractBusinessCategories[]> {
+    try {
+      const { data } = await this.client.get('/categoriaContrato_pj');
 
       return data;
     } catch (error) {

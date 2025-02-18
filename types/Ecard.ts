@@ -23,6 +23,14 @@ export interface Kinship {
 export interface ContractCategories {
   idCategoriaContrato: number;
   dsCategoriaContrato: string;
+  valor: string;
+}
+
+export interface ContractBusinessCategories {
+  idCategoriaContratoEmpresarial: number;
+  dsCategoriaContratoEmpresarial: string;
+  nroMaximoFuncionarios: number;
+  valor: string;
 }
 
 export interface StoreContract {
