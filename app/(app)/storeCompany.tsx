@@ -22,7 +22,8 @@ import {
 import { styleStore } from "@/styles/styles";
 import { MaskedTextInput } from "react-native-mask-text";
 import { useAuth } from "@/contexts/AuthContext";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { format } from "date-fns";
+import { appRepository } from "@/repositories/AppRepository";
 
 export default function Screen() {
   const { authState } = useAuth();
@@ -55,7 +56,6 @@ export default function Screen() {
       phone: "",
       telephone: "",
       zipcode: "",
-      state: "",
       city_id: "",
       street_id: "",
       neighborhood_id: "",
@@ -68,7 +68,12 @@ export default function Screen() {
       observation_phone_1: "",
       observation_phone_2: "",
       complement: "",
-      company_fundation_at: "",
+      company_fundation_at: format(new Date(), "dd/MM/yyyy"),
+      due_contract_day: "",
+      sale_at: format(new Date(), "dd/MM/yyyy"),
+      contract_at: format(new Date(), "dd/MM/yyyy"),
+      observation: "",
+      observation_remote: "",
     },
   });
 
@@ -85,19 +90,21 @@ export default function Screen() {
         return;
       }
 
-      /*const id = await appRepository
-        .store(data)
+      const id = await appRepository
+        .storeBusinessContract(data)
         .then((response) => response.insertedRowId)
         .catch((error) => {
-          Alert.alert("Erro", "Ooops!! Ocorreu um erro ao salvar o cliente.");
+          Alert.alert(
+            "Erro",
+            "Ooops!! Ocorreu um erro ao cadastrar o contrato.",
+          );
           return;
-        });*/
+        });
 
-      console.log(data);
-
-      const id = 123;
-
-      Alert.alert("Sucesso!!", `Contrato Empresarial ID ${id}`);
+      router.navigate({
+        pathname: "/contracts/signature",
+        params: { contractId: id.toString() },
+      });
     } catch (error) {
       console.log(error);
       Alert.alert("Erro", "Ooops!! Ocorreu um erro ao salvar o cliente.");
@@ -459,6 +466,106 @@ export default function Screen() {
         />
         {errors.city_id && (
           <Text style={styleStore.errorText}>{errors.city_id.message}</Text>
+        )}
+
+        <Controller
+          control={control}
+          rules={{ required: "A data de fundação é obrigatória." }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <MaskedTextInput
+              style={styleStore.input}
+              placeholder="Data de Fundação"
+              value={value}
+              mask="99/99/9999"
+              onChangeText={onChange}
+              keyboardType="phone-pad"
+              onBlur={onBlur}
+            />
+          )}
+          name="company_fundation_at"
+        />
+        {errors.company_fundation_at && (
+          <Text style={styleStore.errorText}>
+            {errors.company_fundation_at.message}
+          </Text>
+        )}
+
+        <Controller
+          control={control}
+          rules={{ required: "O dia do vencimento é obrigatório" }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styleStore.input}
+              placeholder="Dia do Vencimento do Contrato"
+              value={value}
+              keyboardType="phone-pad"
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+          )}
+          name="due_contract_day"
+        />
+        {errors.due_contract_day && (
+          <Text style={styleStore.errorText}>
+            {errors.due_contract_day.message}
+          </Text>
+        )}
+
+        <Controller
+          control={control}
+          rules={{ required: "A data da venda é obrigatória." }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styleStore.input}
+              placeholder="Data da Venda"
+              value={value}
+              keyboardType="phone-pad"
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+          )}
+          name="sale_at"
+        />
+        {errors.sale_at && (
+          <Text style={styleStore.errorText}>{errors.sale_at.message}</Text>
+        )}
+
+        <Controller
+          control={control}
+          rules={{ required: "A data do contrato é obrigatória." }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styleStore.input}
+              placeholder="Data do Contrato"
+              value={value}
+              keyboardType="phone-pad"
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+          )}
+          name="contract_at"
+        />
+        {errors.contract_at && (
+          <Text style={styleStore.errorText}>{errors.contract_at.message}</Text>
+        )}
+
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styleStore.input}
+              placeholder="Observação Remota"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+          )}
+          name="observation_remote"
+        />
+        {errors.observation_remote && (
+          <Text style={styleStore.errorText}>
+            {errors.observation_remote.message}
+          </Text>
         )}
 
         <View style={styleStore.btnContainer}>
