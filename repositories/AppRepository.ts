@@ -1,4 +1,5 @@
-import { Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity } from "@/types/Database";
+import AppService from "@/services/AppService";
+import { Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity, LocalNeighborhood } from "@/types/Database";
 import { DATABASE_NAME } from "@/utils/Settings";
 import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
@@ -229,9 +230,88 @@ class AppRepository {
   public async fetchNeighborhoods() {
     try {
       const query = "SELECT id, name FROM neighborhoods ORDER BY name ASC";
-      const results: LocalCity[] = await this.db.getAllAsync(query);
+      const results: LocalNeighborhood[] = await this.db.getAllAsync(query);
 
       return results;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  public async storeNeighborhood(id: number, name: string) {
+    const statement = await this.db.prepareAsync(
+      "INSERT INTO neighborhoods (id, name) VALUES ($id, $name)"
+    );
+
+    try {
+      const result = await statement.executeAsync({
+        $id: id,
+        $name: name
+      });
+
+      const insertedRowId = result.lastInsertRowId.toLocaleString();
+
+      console.log('Bairro inserido: ', insertedRowId);
+
+      return { insertedRowId };
+    } catch (error) {
+      throw error;
+    } finally {
+      await statement.finalizeAsync();
+    }
+  }
+
+  public async syncTablesToServer() {
+    try {
+      console.log('Dropping tables...');
+      await this.db.execAsync(`DROP TABLE IF EXISTS cities;`);
+      await this.db.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
+      await this.db.execAsync(`DROP TABLE IF EXISTS streets;`);
+
+      console.log('Creating tables...');
+      await this.db.execAsync(`
+        CREATE TABLE IF NOT EXISTS cities (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL
+        );
+      `);
+      await this.db.execAsync(`
+        CREATE TABLE IF NOT EXISTS neighborhoods (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL
+        );
+      `);
+      await this.db.execAsync(`
+        CREATE TABLE IF NOT EXISTS streets (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL
+        );
+      `);
+
+
+      console.log('Inserting values...');
+      await AppService.fetchCities().then(async (cities) => {
+        cities.map(async (city) => {
+          await this.db.execAsync(`INSERT INTO cities (id, name) VALUES ('${city.idCidade}', '${city.nmCidade}')`);
+        });
+      });
+
+      await AppService.fetchStreets().then(async (streets) => {
+        streets.map(async (street) => {
+          await this.db.execAsync(`INSERT INTO streets (id, name) VALUES ('${street.idRua}', '${street.nmRua}')`);
+        });
+      });
+
+      await AppService.fetchNeighborhoods().then(async (neighborhoods) => {
+        for await (const neighborhood of neighborhoods) {
+          await this.storeNeighborhood(neighborhood.idBairro, neighborhood.nmBairro);
+        }
+      }).catch((error) => {
+        console.log('ERROR', error);
+      });
+
+      return;
     } catch (error) {
       throw error;
     }

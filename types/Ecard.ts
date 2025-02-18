@@ -1,6 +1,6 @@
 export interface City {
   nmCidade: string;
-  sigla: number;
+  idCidade: number;
 }
 
 export interface Street {

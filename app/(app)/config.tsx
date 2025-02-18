@@ -68,17 +68,23 @@ export default function Screen() {
     setRefreshing(false);
   };
 
+  const handleSyncTables = async () => {
+    setRefreshing(true);
+    console.log("Syncing tables...");
+    await appRepository.syncTablesToServer();
+    console.log("Tables synced!");
+    setRefreshing(false);
+    Alert.alert("Sucesso!", "Tabelas sincronizadas com sucesso.");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {refreshing ? (
         <ActivityIndicator size={"large"} color={"#1D643B"} />
       ) : (
         <>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSyncContractsClick}
-          >
-            <Text style={styles.buttonText}>Sincronizar Contratos</Text>
+          <TouchableOpacity style={styles.button} onPress={handleSyncTables}>
+            <Text style={styles.buttonText}>Sincronizar Tabelas</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
