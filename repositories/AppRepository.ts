@@ -214,7 +214,7 @@ class AppRepository {
         console.log('Fetching business contracts from server...');
         await AppService.fetchBusinessCategories().then(async (categories) => {
           categories.map(async (category) => {
-            await this.db.execAsync(`INSERT INTO contract_business_categories (id, description, price, max_colabs) VALUES ('${category.idCategoriaContratoEmpresarial}', '${category.dsCategoriaContratoEmpresarial}', '${category.valor}', '${category.nroMaximoFuncionarios}')`);
+            await this.storeBusinessCategory(category.idCategoriaContratoEmpresarial, category.dsCategoriaContratoEmpresarial, category.valor, category.nroMaximoFuncionarios);
           });
         });
       }
@@ -267,26 +267,6 @@ class AppRepository {
     }
   }
 
-  public async fetchBusinessCategory() {
-    try {
-      const query = "SELECT id, name FROM kinships ORDER BY name ASC";
-      const results: LocalKinship[] = await this.db.getAllAsync(query);
-
-      if (!results || results.length === 0) {
-        console.log('Fetching kinships from server...');
-        await AppService.fetchKinships().then(async (kinships) => {
-          kinships.map(async (kinship) => {
-            await this.db.execAsync(`INSERT INTO kinships (id, name) VALUES ('${kinship.idGrauParentesco}', '${kinship.dsGrauParentesco}')`);
-          });
-        });
-      }
-
-      return results;
-    } catch (error) {
-      throw error;
-    }
-  }
-
   public async storeNeighborhood(id: number, name: string) {
     const statement = await this.db.prepareAsync(
       "INSERT INTO neighborhoods (id, name) VALUES ($id, $name)"
@@ -310,12 +290,39 @@ class AppRepository {
     }
   }
 
+
+  public async storeBusinessCategory(id: number, name: string, price: string, maxColabs: number) {
+    const statement = await this.db.prepareAsync(
+      "INSERT INTO contract_business_categories (id, description, price, max_colabs) VALUES ($id, $name, $price, $max_colabs)"
+    );
+
+    try {
+      const result = await statement.executeAsync({
+        $id: id,
+        $description: name,
+        $price: price,
+        $max_colabs: maxColabs
+      });
+
+      const insertedRowId = result.lastInsertRowId.toLocaleString();
+
+      console.log('Categoria Empresarial inserida: ', insertedRowId);
+
+      return { insertedRowId };
+    } catch (error) {
+      throw error;
+    } finally {
+      await statement.finalizeAsync();
+    }
+  }
+
   public async syncTablesToServer() {
     try {
       console.log('Dropping tables...');
       await this.db.execAsync(`DROP TABLE IF EXISTS cities;`);
       await this.db.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
       await this.db.execAsync(`DROP TABLE IF EXISTS streets;`);
+      await this.db.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
 
       console.log('Creating tables...');
       await this.db.execAsync(`
@@ -334,6 +341,14 @@ class AppRepository {
         CREATE TABLE IF NOT EXISTS streets (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL
+        );
+      `);
+      await this.db.execAsync(`
+        CREATE TABLE IF NOT EXISTS contract_business_categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          price NUMERIC NOT NULL,
+          description TEXT NOT NULL,
+          max_colabs INTEGER NULL DEFAULT 0
         );
       `);
 
@@ -358,6 +373,8 @@ class AppRepository {
       }).catch((error) => {
         console.log('ERROR', error);
       });
+
+      await this.fetchBusinessContracts();
 
       return;
     } catch (error) {
