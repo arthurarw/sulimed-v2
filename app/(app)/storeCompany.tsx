@@ -40,7 +40,7 @@ export default function Screen() {
   );
   const [streets, setStreets] = useState<LocalStreet[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<LocalNeighborhood[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     control,
@@ -114,7 +114,6 @@ export default function Screen() {
 
   useEffect(() => {
     console.log("Fetching data...");
-    setIsLoading(true);
     const cities = async () => {
       try {
         const response = await fetchCities();
