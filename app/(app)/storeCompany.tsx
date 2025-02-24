@@ -113,54 +113,25 @@ export default function Screen() {
     }
   };
 
-  useEffect(() => {
-    console.log("Fetching data...");
-    const cities = async () => {
-      try {
-        const response = await fetchCities();
-        setCities(response);
-      } catch (error) {
-        Alert.alert("Erro", "Ooops!! Ocorreu um erro ao buscar as cidades.");
-        throw error;
-      }
-    };
+  const loadData = async () => {
+    setIsLoading(true);
+    const cities = await fetchCities();
+    const businessContracts = await fetchBusinessContracts();
+    const streets = await fetchStreets();
+    const neighborhoods = await fetchNeighborhoods();
 
-    const businessContracts = async () => {
-      try {
-        const response = await fetchBusinessContracts();
-        setBusinessContracts(response);
-      } catch (error) {
-        Alert.alert("Erro", "Ooops!! Ocorreu um erro ao buscar os contratos.");
-        throw error;
-      }
-    };
-
-    const streets = async () => {
-      try {
-        const response = await fetchStreets();
-        setStreets(response);
-      } catch (error) {
-        Alert.alert("Erro", "Ooops!! Ocorreu um erro ao buscar as ruas.");
-        throw error;
-      }
-    };
-
-    const neighborhoods = async () => {
-      try {
-        const response = await fetchNeighborhoods();
-        setNeighborhoods(response);
-      } catch (error) {
-        Alert.alert("Erro", "Ooops!! Ocorreu um erro ao buscar os bairros.");
-        throw error;
-      }
-    };
-
-    cities();
-    businessContracts();
-    streets();
-    neighborhoods();
+    setCities(cities);
+    setBusinessContracts(businessContracts);
+    setStreets(streets);
+    setNeighborhoods(neighborhoods);
     setIsLoading(false);
-  }, [isLoading]);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, []),
+  );
 
   return (
     <SafeAreaView style={styleStore.container}>

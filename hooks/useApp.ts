@@ -13,7 +13,7 @@ export const useApp = () => {
 
   async function fetchBusinessContracts(): Promise<LocalCategory[]> {
     try {
-      return await appRepository.fetchBusinessContracts();
+      return await appRepository.fetchCategoriesBusinessContracts();
     } catch (error) {
       console.error(error);
       return [];
