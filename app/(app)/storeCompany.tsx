@@ -1,5 +1,5 @@
 import { useConnection } from "@/hooks/useConnection";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   SafeAreaView,
@@ -24,6 +24,7 @@ import { MaskedTextInput } from "react-native-mask-text";
 import { useAuth } from "@/contexts/AuthContext";
 import { appRepository } from "@/repositories/AppRepository";
 import { Dropdown } from "react-native-element-dropdown";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Screen() {
   const { authState } = useAuth();

@@ -1,7 +1,6 @@
 import AppService from "@/services/AppService";
-import { Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity, LocalKinship, LocalNeighborhood } from "@/types/Database";
+import { BusinessContract, Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity, LocalKinship, LocalNeighborhood } from "@/types/Database";
 import { DATABASE_NAME } from "@/utils/Settings";
-import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { ptBR } from 'date-fns/locale';
 import * as SQLite from 'expo-sqlite';
@@ -92,6 +91,23 @@ class AppRepository {
     }
   }
 
+  public async setContractSyncConcluded(id: number) {
+    const statement = await this.db.prepareAsync(
+      "UPDATE contracts SET sync = $sync WHERE id = $id",
+    );
+
+    try {
+      await statement.executeAsync({
+        $id: id,
+        $sync: 0,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      await statement.finalizeAsync();
+    }
+  }
+
   public async setSyncConcluded(id: number) {
     const statement = await this.db.prepareAsync(
       "UPDATE customers SET sync = $sync WHERE id = $id",
@@ -117,7 +133,7 @@ class AppRepository {
     }
   }
 
-  public async fetchContract(id: number) {
+  public async fetchContract(id: number): Promise<Contract | null> {
     try {
       const result: Contract = await this.db.getFirstAsync('SELECT * FROM contracts WHERE id = ?', id);
 
@@ -131,16 +147,35 @@ class AppRepository {
     }
   }
 
-  public async fetchSyncCustomers() {
+  public async syncBusinessContracts(): Promise<boolean> {
     try {
-      const query = "SELECT * FROM customers WHERE sync = 1";
-      const results: CustomerDatabase[] = await this.db.getAllAsync(query);
+      const results: BusinessContract[] = await this.db.getAllAsync('SELECT * FROM contracts WHERE is_company = 1 AND sync = 1');
 
-      console.log("XXX", results);
+      if (!results || results.length === 0) {
+        throw new Error('No contracts to sync.');
+      }
 
-      return results;
+      results.map(async (contract) => {
+        await AppService.storeBusinessContract(contract).then(async (contractId) => {
+          if (!contractId) {
+            throw new Error('Error while syncing contract.');
+          }
+
+          if (contract.signature) {
+            await AppService.sendSignature(contractId, contract.signature);
+          }
+
+          await this.setContractSyncConcluded(contract.id);
+        }).catch((error) => {
+          console.log('ERROR', error);
+        });
+      });
+
+      return true;
     } catch (error) {
       throw error;
+    } finally {
+      await this.db.closeAsync();
     }
   }
 
@@ -205,7 +240,7 @@ class AppRepository {
     }
   }
 
-  public async fetchBusinessContracts() {
+  public async fetchCategoriesBusinessContracts() {
     try {
       const query = "SELECT id, description, price, max_colabs FROM contract_business_categories ORDER BY description ASC";
       const results: LocalCategory[] = await this.db.getAllAsync(query);
@@ -374,7 +409,7 @@ class AppRepository {
         console.log('ERROR', error);
       });
 
-      await this.fetchBusinessContracts();
+      await this.fetchCategoriesBusinessContracts();
 
       return;
     } catch (error) {

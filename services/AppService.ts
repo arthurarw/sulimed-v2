@@ -1,4 +1,5 @@
-import { City, ContractBusinessCategories, ContractCategories, Kinship, Neighborhood, PersonContract, Street } from '@/types/Ecard';
+import { BusinessContract } from '@/types/Database';
+import { City, Contract, ContractBusinessCategories, ContractCategories, Kinship, Neighborhood, PersonContract, Street } from '@/types/Ecard';
 import { formatBrazilDate, formatBrazilTime } from '@/utils/String';
 import axios, { AxiosInstance } from 'axios';
 
@@ -178,6 +179,77 @@ class AppApi {
           "dtNascimento": dependent.birthday,
           "idGrauParentesco": dependent.id
         }))
+      });
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  public async storeBusinessContract(body: BusinessContract): Promise<number> {
+    try {
+      const { data } = await this.client.post('/insereContratoPj', {
+        "idContratoEmpresarial": null,
+        "filial": 1,
+        "ativo": "S",
+        "idCategoriaContratoEmpresarial": body.category_business_id,
+        "dtVenda": body.sale_at,
+        "dtContrato": body.created_at,
+        "observacao": body.observation,
+        "telefone2": body.phone_2,
+        "obsTelefone1": body.observation_phone_1,
+        "obsTelefone2": body.observation_phone_2,
+        "obsCelular": body.observation_cellphone,
+        "idFuncionario": body.colab_id,
+        "valorMensalidade": body.mensality_price,
+        "diaVencimento": body.due_contract_day,
+        "obsCadastroRemoto": body.observation_remote,
+        "pessoa": {
+          "idPessoa": null,
+          "ativa": "S",
+          "nmPessoa": body.person_name,
+          "apelidoFantasia": body.person_nickname,
+          "tipo": "J",
+          "cep": body.zipcode,
+          "numero": body.number,
+          "complemento": body.complement,
+          "proximidade": null,
+          "idCidade": body.city_id,
+          "idBairro": body.neighborhood_id,
+          "idRua": body.street_id,
+          "telefone": body.phone_1,
+          "email": body.email,
+          "dtCadastro": body.created_at,
+          "observacao": body.person_observation,
+          "cnpj": body.document,
+          "dtFundacao": body.company_fundation_at,
+          "celular": body.cellphone,
+          "infoAdicional": null
+        },
+        "categorias": [
+          {
+            "idCategoriaContrato": body.category_id
+          }
+        ]
+      });
+
+      return 123;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  public async sendSignature(contractId: number, signature: string): Promise<any> {
+    try {
+      const { data } = await this.client.post('/insereImagem', {
+        "idOrigem": contractId,
+        "dsOrigem": "ecard_contrato",
+        "tipoArquivo": "image/png",
+        "imagem": signature,
+        "descricao": `Imagem da assinatura do contrato ${contractId}`
       });
 
       return data;
