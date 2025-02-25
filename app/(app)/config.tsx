@@ -83,20 +83,56 @@ export default function Screen() {
     console.log("Syncing tables...");
     await appRepository.syncTablesToServer();
 
-    await appRepository.fetchCities();
-    setFetchingCities(true);
+    await appRepository
+      .fetchCities()
+      .then(() => {
+        setFetchingCities(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Erro!", error);
+      });
 
-    await appRepository.fetchStreets();
-    setFetchingStreets(true);
+    await appRepository
+      .fetchStreets()
+      .then(() => {
+        setFetchingStreets(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Erro!", error);
+      });
 
-    await appRepository.fetchNeighborhoods();
-    setFetchingNeighborhoods(true);
+    await appRepository
+      .fetchNeighborhoods()
+      .then(() => {
+        setFetchingNeighborhoods(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Erro!", error);
+      });
 
-    await appRepository.fetchCategoriesBusinessContracts();
-    setFetchingCategoriesBusiness(true);
+    await appRepository
+      .fetchCategoriesBusinessContracts()
+      .then(() => {
+        setFetchingCategoriesBusiness(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Erro!", error);
+      });
 
-    await appRepository.fetchCategoriesContract();
-    setFetchingCategories(true);
+    await appRepository
+      .fetchCategoriesContract()
+      .then(() => {
+        setFetchingCategories(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Erro!", error);
+      });
+
     setRefreshing(false);
     Alert.alert("Sucesso!", "Tabelas sincronizadas com sucesso.");
   };
