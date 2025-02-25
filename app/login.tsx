@@ -3,7 +3,6 @@ import { styleStore } from "@/styles/styles";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  Button,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -11,7 +10,9 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Alert,
 } from "react-native";
+import * as EmailValidator from "email-validator";
 
 export default function Screen() {
   const [email, setEmail] = useState("");
@@ -20,18 +21,24 @@ export default function Screen() {
 
   const login = async () => {
     if (!email || !password) {
-      alert("Preencha todos os campos!");
+      Alert.alert("Ooops!!", "Preencha todos os campos!");
+      return;
+    }
+
+    const isValidMail = EmailValidator.validate(email);
+    if (!isValidMail) {
+      Alert.alert("Ooops!!", "E-mail inválido!");
       return;
     }
 
     const result = await onLogin(email, password);
     if (result && result.authenticated) {
       router.replace("/");
-      alert("Login efetuado com sucesso!");
+      Alert.alert("Sucesso", "Login efetuado com sucesso");
       return;
     }
 
-    alert("Erro ao efetuar o login!");
+    Alert.alert("Ooops!!", "Erro ao efetuar o login!");
     return;
   };
 
@@ -47,6 +54,7 @@ export default function Screen() {
           style={styles.input}
           onChangeText={(value: string) => setEmail(value)}
           placeholder="Digite seu e-mail"
+          keyboardType="email-address"
         />
         <Text>Senha</Text>
         <TextInput
