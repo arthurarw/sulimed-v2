@@ -632,22 +632,6 @@ class AppRepository {
         );
       `);
 
-
-      console.log('Inserting Cities...');
-      await this.fetchCities();
-
-      console.log('Inserting Streets...');
-      await this.fetchStreets();
-
-      console.log('Inserting Neighborhoods...');
-      await this.fetchNeighborhoods();
-
-      console.log('Inserting Business Categories...');
-      await this.fetchCategoriesBusinessContracts();
-
-      console.log('Inserting categories...');
-      await this.fetchCategoriesContract();
-
       return;
     } catch (error) {
       throw error;

@@ -3,7 +3,6 @@ import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
 import { useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   SafeAreaView,
   StatusBar,
@@ -15,6 +14,12 @@ export default function Screen() {
   const [refreshing, setRefreshing] = useState(false);
   const { isConnected } = useConnection();
   const { onLogout } = useAuth();
+  const [fetchingCities, setFetchingCities] = useState(false);
+  const [fetchingStreets, setFetchingStreets] = useState(false);
+  const [fetchingNeighborhoods, setFetchingNeighborhoods] = useState(false);
+  const [fetchingCategories, setFetchingCategories] = useState(false);
+  const [fetchingCategoriesBusiness, setFetchingCategoriesBusiness] =
+    useState(false);
 
   const handleSyncContractsClick = () => {
     if (!isConnected) {
@@ -68,10 +73,30 @@ export default function Screen() {
   };
 
   const handleSyncTables = async () => {
+    setFetchingCities(false);
+    setFetchingStreets(false);
+    setFetchingNeighborhoods(false);
+    setFetchingCategoriesBusiness(false);
+    setFetchingCategories(false);
     setRefreshing(true);
+
     console.log("Syncing tables...");
     await appRepository.syncTablesToServer();
-    console.log("Tables synced!");
+
+    await appRepository.fetchCities();
+    setFetchingCities(true);
+
+    await appRepository.fetchStreets();
+    setFetchingStreets(true);
+
+    await appRepository.fetchNeighborhoods();
+    setFetchingNeighborhoods(true);
+
+    await appRepository.fetchCategoriesBusinessContracts();
+    setFetchingCategoriesBusiness(true);
+
+    await appRepository.fetchCategoriesContract();
+    setFetchingCategories(true);
     setRefreshing(false);
     Alert.alert("Sucesso!", "Tabelas sincronizadas com sucesso.");
   };
@@ -79,7 +104,25 @@ export default function Screen() {
   return (
     <SafeAreaView style={styles.container}>
       {refreshing ? (
-        <ActivityIndicator size={"large"} color={"#1D643B"} />
+        <>
+          <Text>
+            {!fetchingCities ? "Sincronizando Cidades..." : "Cidades OK"}
+          </Text>
+          <Text>{!fetchingStreets ? "Sincronizando Ruas..." : "Ruas OK"}</Text>
+          <Text>
+            {!fetchingNeighborhoods ? "Sincronizando Bairros..." : "Bairros OK"}
+          </Text>
+          <Text>
+            {!fetchingCategoriesBusiness
+              ? "Sincronizando Categorias Empresariais..."
+              : "Categorias Empresariais OK"}
+          </Text>
+          <Text>
+            {!fetchingCategories
+              ? "Sincronizando Categorias..."
+              : "Categorias OK"}
+          </Text>
+        </>
       ) : (
         <>
           <TouchableOpacity style={styles.button} onPress={handleSyncTables}>
