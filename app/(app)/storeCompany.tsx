@@ -54,7 +54,7 @@ export default function Screen() {
     setValue,
   } = useForm({
     defaultValues: {
-      business_category_id: "",
+      category_business_id: "",
       category_id: "",
       mensality_price: "",
       name: "",
@@ -78,8 +78,8 @@ export default function Screen() {
       due_contract_day: "",
       sale_at: "",
       contract_at: "",
-      observation: "",
       observation_remote: "",
+      observation: "",
     },
   });
 
@@ -100,7 +100,7 @@ export default function Screen() {
         .storeBusinessContract(data)
         .then((response) => response.insertedRowId)
         .catch((error) => {
-          console.log(error);
+          console.log("UQQ", error);
           Alert.alert(
             "Erro",
             "Ooops!! Ocorreu um erro ao cadastrar o contrato.",
@@ -179,8 +179,7 @@ export default function Screen() {
                 style={styleStore.input}
                 searchPlaceholder="Buscar Categoria Empresarial"
                 onChange={(item) => {
-                  console.log("uqq", item);
-                  onChange(item);
+                  onChange(item.value);
                   onChangeBusinessCategory(item.value);
                 }}
                 onBlur={onBlur}
@@ -188,11 +187,11 @@ export default function Screen() {
                 valueField={"value"}
               />
             )}
-            name="business_category_id"
+            name="category_business_id"
           />
-          {errors.business_category_id && (
+          {errors.category_business_id && (
             <Text style={styleStore.errorText}>
-              {errors.business_category_id.message}
+              {errors.category_business_id.message}
             </Text>
           )}
 
@@ -230,7 +229,9 @@ export default function Screen() {
                 value={value}
                 style={styleStore.input}
                 searchPlaceholder="Buscar Categoria Individual"
-                onChange={onChange}
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
                 onBlur={onBlur}
                 labelField={"label"}
                 valueField={"value"}
@@ -284,7 +285,10 @@ export default function Screen() {
 
           <Controller
             control={control}
-            rules={{ required: "O CNPJ é obrigatório" }}
+            rules={{
+              required: "O CNPJ é obrigatório",
+              pattern: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/,
+            }}
             render={({ field: { onChange, onBlur, value } }) => (
               <MaskedTextInput
                 style={styleStore.input}
@@ -476,7 +480,9 @@ export default function Screen() {
                 value={value}
                 style={styleStore.input}
                 searchPlaceholder="Buscar Rua"
-                onChange={onChange}
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
                 onBlur={onBlur}
                 labelField={"label"}
                 valueField={"value"}
@@ -503,7 +509,9 @@ export default function Screen() {
                 value={value}
                 style={styleStore.input}
                 searchPlaceholder="Buscar Bairro"
-                onChange={onChange}
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
                 onBlur={onBlur}
                 labelField={"label"}
                 valueField={"value"}
@@ -531,7 +539,9 @@ export default function Screen() {
                 style={styleStore.input}
                 placeholder="Selecione a Cidade"
                 searchPlaceholder="Buscar Cidade"
-                onChange={onChange}
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
                 onBlur={onBlur}
                 labelField={"label"}
                 valueField={"value"}
@@ -545,7 +555,21 @@ export default function Screen() {
 
           <Controller
             control={control}
-            rules={{ required: "A data de fundação é obrigatória." }}
+            rules={{
+              required: "A data de fundação é obrigatória.",
+              validate: (value) => {
+                const date = value.split("/");
+                if (date.length !== 3) {
+                  return false;
+                }
+                const day = parseInt(date[0]);
+                const month = parseInt(date[1]);
+                const year = parseInt(date[2]);
+                return (
+                  day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                );
+              },
+            }}
             render={({ field: { onChange, onBlur, value } }) => (
               <MaskedTextInput
                 style={styleStore.input}
@@ -567,12 +591,17 @@ export default function Screen() {
 
           <Controller
             control={control}
-            rules={{ required: "O dia do vencimento é obrigatório" }}
+            rules={{
+              required: "O dia do vencimento é obrigatório",
+              maxLength: 2,
+              validate: (value) => parseInt(value) > 0 && parseInt(value) < 32,
+            }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={styleStore.input}
                 placeholder="Dia do Vencimento do Contrato"
                 value={value}
+                maxLength={2}
                 keyboardType="phone-pad"
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -588,7 +617,21 @@ export default function Screen() {
 
           <Controller
             control={control}
-            rules={{ required: "A data da venda é obrigatória." }}
+            rules={{
+              required: "A data da venda é obrigatória.",
+              validate: (value) => {
+                const date = value.split("/");
+                if (date.length !== 3) {
+                  return false;
+                }
+                const day = parseInt(date[0]);
+                const month = parseInt(date[1]);
+                const year = parseInt(date[2]);
+                return (
+                  day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                );
+              },
+            }}
             render={({ field: { onChange, onBlur, value } }) => (
               <MaskedTextInput
                 style={styleStore.input}
@@ -608,7 +651,21 @@ export default function Screen() {
 
           <Controller
             control={control}
-            rules={{ required: "A data do contrato é obrigatória." }}
+            rules={{
+              required: "A data do contrato é obrigatória.",
+              validate: (value) => {
+                const date = value.split("/");
+                if (date.length !== 3) {
+                  return false;
+                }
+                const day = parseInt(date[0]);
+                const month = parseInt(date[1]);
+                const year = parseInt(date[2]);
+                return (
+                  day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                );
+              },
+            }}
             render={({ field: { onChange, onBlur, value } }) => (
               <MaskedTextInput
                 style={styleStore.input}
@@ -625,6 +682,26 @@ export default function Screen() {
           {errors.contract_at && (
             <Text style={styleStore.errorText}>
               {errors.contract_at.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O campo é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Observação"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="observation"
+          />
+          {errors.observation && (
+            <Text style={styleStore.errorText}>
+              {errors.observation.message}
             </Text>
           )}
 

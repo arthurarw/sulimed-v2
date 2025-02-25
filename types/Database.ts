@@ -3,6 +3,7 @@ export interface ContractCustomerList {
   name: string;
   created_at: string;
   sync: boolean;
+  is_company: boolean;
 }
 
 export interface Contract {
@@ -92,7 +93,7 @@ export interface BusinessContract {
   is_company: boolean;
   colab_id: number | null;
   pre_contract: string;
-  category_id: number | null;
+  category_id: number;
   category_business_id: number | null;
   person_type: string;
   person_name: string;

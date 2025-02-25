@@ -1,4 +1,5 @@
-import { useLocalSearchParams } from "expo-router";
+import { appRepository } from "@/repositories/AppRepository";
+import { router, useLocalSearchParams } from "expo-router";
 import Drawer from "expo-router/drawer";
 import { useRef } from "react";
 import {
@@ -8,6 +9,7 @@ import {
   Text,
   View,
   Button,
+  Alert,
 } from "react-native";
 import SignatureScreen, {
   SignatureViewRef,
@@ -19,8 +21,18 @@ export default function Screen() {
   const ref = useRef<SignatureViewRef>(null);
 
   const handleOK = async (signature: string) => {
-    console.log(typeof signature);
-    console.log(signature);
+    await appRepository
+      .setSignature(Number(contractId), signature)
+      .then(() => {
+        Alert.alert("Sucesso!", "Assinatura salva com sucesso.");
+        router.navigate({
+          pathname: "/contracts/[id]",
+          params: { id: contractId.toString() },
+        });
+      })
+      .catch(() => {
+        Alert.alert("Erro!", "Ocorreu um erro ao salvar a assinatura.");
+      });
   };
 
   const handleClear = () => {

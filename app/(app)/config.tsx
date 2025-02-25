@@ -63,7 +63,7 @@ export default function Screen() {
   const handleSyncContracts = async () => {
     setRefreshing(true);
     console.log("Syncing contracts...");
-    await appRepository.syncContractsToServer();
+    await appRepository.syncBusinessContracts();
     console.log("Contracts synced!");
     setRefreshing(false);
   };

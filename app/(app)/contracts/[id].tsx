@@ -48,21 +48,19 @@ export default function Screen() {
             <Text>Nome: {contract.name}</Text>
             <Text>Empresarial: {contract.is_company ? "SIM" : "NÃO"}</Text>
             <Text>CPF/CNPJ: {String(contract.document)}</Text>
-            <Text>
-              Data de Cadastro: {formatBrazilDateTimeNew(contract.created_at)}
-            </Text>
+            <Text>Data de Cadastro: {contract.created_at}</Text>
+            <Text>Contrato assinado: {contract.signature ? "SIM" : "NÃO"}</Text>
           </View>
           <TouchableOpacity
-            style={styles.button}
+            style={
+              contract.signature === null
+                ? styles.button
+                : styles.buttonDisabled
+            }
             onPress={handleSignatureContract}
+            disabled={contract.signature !== null}
           >
             <Text style={styles.buttonText}>Assinar Contrato</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => alert("Hello")}
-          >
-            <Text style={styles.buttonText}>Enviar Documentos</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonBack} onPress={handleBackPress}>
             <Text style={styles.buttonText}>Voltar</Text>
@@ -91,6 +89,18 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#1D643B", // Purple color
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 5, // Rounded corners
+    marginVertical: 10, // Space between buttons
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3, // For Android shadow
+  },
+  buttonDisabled: {
+    backgroundColor: "#aaa",
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 5, // Rounded corners

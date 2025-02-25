@@ -64,7 +64,11 @@ class AppApi {
 
   public async storeBusinessContract(body: BusinessContract): Promise<number> {
     try {
-      const { data } = await this.client.post('/insereContratoPj', {
+      //const categoryContractId = JSON.parse(String(body.category_id)).value;
+      //const categoryBusinessContractId = JSON.parse(String(body.category_business_id)).value;
+
+
+      const payload = {
         "idContratoEmpresarial": null,
         "filial": 1,
         "ativo": "S",
@@ -107,9 +111,15 @@ class AppApi {
             "idCategoriaContrato": body.category_id
           }
         ]
-      });
+      }
 
-      return 123;
+      console.log('Body Store', payload);
+
+      const { data } = await this.client.post('/insereContratoPj', payload);
+
+      console.log('DATA BUSINESS', data);
+
+      return data.idContratoEmpresarial;
     } catch (error) {
       console.log(error);
       throw error;
@@ -125,6 +135,8 @@ class AppApi {
         "imagem": signature,
         "descricao": `Imagem da assinatura do contrato ${contractId}`
       });
+
+      console.log('DATA SIGNATURE', data);
 
       return data;
     } catch (error) {
