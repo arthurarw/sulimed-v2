@@ -37,6 +37,13 @@ export const styleStore = StyleSheet.create({
     borderRadius: 8,
     textTransform: "uppercase",
   },
+  buttonWarning: {
+    backgroundColor: "#f39c12",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    textTransform: "uppercase",
+  },
   buttonText: {
     color: "#fff",
     fontSize: 16,

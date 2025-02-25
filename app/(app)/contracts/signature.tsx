@@ -1,4 +1,5 @@
 import { appRepository } from "@/repositories/AppRepository";
+import { styleStore } from "@/styles/styles";
 import { router, useLocalSearchParams } from "expo-router";
 import Drawer from "expo-router/drawer";
 import { useRef } from "react";
@@ -10,6 +11,7 @@ import {
   View,
   Button,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import SignatureScreen, {
   SignatureViewRef,
@@ -35,6 +37,10 @@ export default function Screen() {
       });
   };
 
+  const handleBackPress = () => {
+    router.navigate({ pathname: "/contracts" });
+  };
+
   const handleClear = () => {
     ref.current?.clearSignature();
   };
@@ -48,12 +54,31 @@ export default function Screen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Drawer.Screen options={{ title: "Assinar Contrato #" + contractId }} />
-      <Text style={styles.title}>Assinar Contrato #{contractId}</Text>
+      <Drawer.Screen
+        options={{
+          title: "Assinar Contrato #" + contractId,
+        }}
+      />
+      <Text style={styleStore.title}>Assinar Contrato #{contractId}</Text>
       <SignatureScreen ref={ref} onOK={handleOK} webStyle={style} />
       <View style={styles.row}>
-        <Button title="Limpar" onPress={handleClear} />
-        <Button title="Salvar" onPress={handleConfirm} />
+        <TouchableOpacity
+          onPress={handleClear}
+          style={{ ...styleStore.buttonCancel, marginRight: 10 }}
+        >
+          <Text style={styleStore.buttonText}>Limpar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleConfirm} style={styleStore.button}>
+          <Text style={styleStore.buttonText}>Salvar</Text>
+        </TouchableOpacity>
+      </View>
+      <View>
+        <TouchableOpacity
+          onPress={handleBackPress}
+          style={styleStore.buttonWarning}
+        >
+          <Text style={styleStore.buttonText}>Voltar</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -62,57 +87,18 @@ export default function Screen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#fff",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    padding: 20,
     marginTop: StatusBar.currentHeight || 0,
   },
-  listContainer: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  headerText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    flex: 1,
-    justifyContent: "space-between",
-  },
   row: {
-    marginVertical: 8,
-    marginHorizontal: 1,
+    marginVertical: 58,
     flexDirection: "row",
-    justifyContent: "space-between",
-    elevation: 1,
     borderRadius: 3,
-    paddingVertical: 15,
+    justifyContent: "space-between",
     paddingHorizontal: 8,
     backgroundColor: "#fff",
-  },
-  cell: {
-    fontSize: 14,
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 5,
-    marginBottom: 20,
-  },
-  success: {
-    color: "#008000",
-    fontWeight: "bold",
-  },
-  error: {
-    color: "#ff0000",
-    fontWeight: "bold",
-  },
-  emptyText: {
-    fontSize: 14,
-    marginTop: 40,
   },
 });

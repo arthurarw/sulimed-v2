@@ -1,6 +1,6 @@
 import AppService from "@/services/AppService";
 import { BusinessContract, Contract, ContractCustomerList, LocalCategory, LocalCity, LocalKinship, LocalNeighborhood } from "@/types/Database";
-import { DATABASE_NAME } from "@/utils/Settings";
+import { CHUNK_SIZE, DATABASE_NAME } from "@/utils/Settings";
 import { formatBrazilDate, formatBrazilTime } from "@/utils/String";
 import * as SQLite from 'expo-sqlite';
 
@@ -185,6 +185,19 @@ class AppRepository {
       const query = "SELECT id, name FROM cities ORDER BY name ASC";
       const results: LocalCity[] = await this.db.getAllAsync(query);
 
+      if (!results || results.length === 0) {
+        await AppService.fetchCities().then(async (cities) => {
+          for (let i = 0; i < cities.length; i += CHUNK_SIZE) {
+            const chunk = cities.slice(i, i + CHUNK_SIZE);
+            chunk.map(async (city) => {
+              await this.storeCity(city.idCidade, city.nmCidade);
+            });
+          }
+        });
+
+        return await this.db.getAllAsync(query);
+      }
+
       return results;
     } catch (error) {
       throw error;
@@ -201,7 +214,6 @@ class AppRepository {
         await AppService.fetchBusinessCategories().then(async (categories) => {
           categories.map(async (category) => {
             await this.storeBusinessCategory(category.idCategoriaContratoEmpresarial, category.dsCategoriaContratoEmpresarial, category.valor, category.nroMaximoFuncionarios);
-            console.log('Categoria Empresarial inserida: ', category.idCategoriaContratoEmpresarial);
           });
         });
 
@@ -219,6 +231,20 @@ class AppRepository {
       const query = "SELECT id, name FROM streets ORDER BY name ASC";
       const results: LocalCity[] = await this.db.getAllAsync(query);
 
+      if (!results || results.length === 0) {
+        console.log('Fetching streets from server...');
+        await AppService.fetchStreets().then(async (streets) => {
+          for (let i = 0; i < streets.length; i += CHUNK_SIZE) {
+            const chunk = streets.slice(i, i + CHUNK_SIZE);
+            chunk.map(async (street) => {
+              await this.storeStreet(street.idRua, street.nmRua);
+            });
+          }
+        });
+
+        return await this.db.getAllAsync(query);
+      }
+
       return results;
     } catch (error) {
       throw error;
@@ -229,6 +255,20 @@ class AppRepository {
     try {
       const query = "SELECT id, name FROM neighborhoods ORDER BY name ASC";
       const results: LocalNeighborhood[] = await this.db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        console.log('Fetching neighborhoods from server...');
+        await AppService.fetchNeighborhoods().then(async (neighborhoods) => {
+          for (let i = 0; i < neighborhoods.length; i += CHUNK_SIZE) {
+            const chunk = neighborhoods.slice(i, i + CHUNK_SIZE);
+            chunk.map(async (neighborhood) => {
+              await this.storeNeighborhood(neighborhood.idBairro, neighborhood.nmBairro);
+            });
+          }
+        });
+
+        return await this.db.getAllAsync(query);
+      }
 
       return results;
     } catch (error) {
@@ -246,7 +286,6 @@ class AppRepository {
         await AppService.fetchCategories().then(async (categories) => {
           categories.map(async (category) => {
             await this.storeCategory(category.idCategoriaContrato, category.dsCategoriaContrato, category.valor);
-            console.log('Categoria inserida: ', category.idCategoriaContrato);
           });
         });
 
@@ -292,8 +331,6 @@ class AppRepository {
 
       const insertedRowId = result.lastInsertRowId.toLocaleString();
 
-      console.log('Bairro inserido: ', insertedRowId);
-
       return { insertedRowId };
     } catch (error) {
       throw error;
@@ -318,7 +355,47 @@ class AppRepository {
 
       const insertedRowId = result.lastInsertRowId.toLocaleString();
 
-      console.log('Categoria Empresarial inserida: ', insertedRowId);
+      return { insertedRowId };
+    } catch (error) {
+      throw error;
+    } finally {
+      await statement.finalizeAsync();
+    }
+  }
+
+  public async storeCity(id: number, name: string) {
+    const statement = await this.db.prepareAsync(
+      "INSERT INTO cities (id, name) VALUES ($id, $name)"
+    );
+
+    try {
+      const result = await statement.executeAsync({
+        $id: id,
+        $name: name
+      });
+
+      const insertedRowId = result.lastInsertRowId.toLocaleString();
+
+      return { insertedRowId };
+    } catch (error) {
+      throw error;
+    } finally {
+      await statement.finalizeAsync();
+    }
+  }
+
+  public async storeStreet(id: number, name: string) {
+    const statement = await this.db.prepareAsync(
+      "INSERT INTO streets (id, name) VALUES ($id, $name)"
+    );
+
+    try {
+      const result = await statement.executeAsync({
+        $id: id,
+        $name: name
+      });
+
+      const insertedRowId = result.lastInsertRowId.toLocaleString();
 
       return { insertedRowId };
     } catch (error) {
@@ -415,29 +492,19 @@ class AppRepository {
       `);
 
 
-      console.log('Inserting values...');
-      await AppService.fetchCities().then(async (cities) => {
-        cities.map(async (city) => {
-          await this.db.execAsync(`INSERT INTO cities (id, name) VALUES ('${city.idCidade}', '${city.nmCidade}')`);
-        });
-      });
+      console.log('Inserting Cities...');
+      await this.fetchCities();
 
-      await AppService.fetchStreets().then(async (streets) => {
-        streets.map(async (street) => {
-          await this.db.execAsync(`INSERT INTO streets (id, name) VALUES ('${street.idRua}', '${street.nmRua}')`);
-        });
-      });
+      console.log('Inserting Streets...');
+      await this.fetchStreets();
 
-      await AppService.fetchNeighborhoods().then(async (neighborhoods) => {
-        for await (const neighborhood of neighborhoods) {
-          await this.storeNeighborhood(neighborhood.idBairro, neighborhood.nmBairro);
-        }
-      }).catch((error) => {
-        console.log('ERROR', error);
-      });
+      console.log('Inserting Neighborhoods...');
+      await this.fetchNeighborhoods();
 
+      console.log('Inserting Business Categories...');
       await this.fetchCategoriesBusinessContracts();
 
+      console.log('Inserting categories...');
       await this.fetchCategoriesContract();
 
       return;

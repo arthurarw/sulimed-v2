@@ -20,7 +20,7 @@ export default function AppLayout() {
     SpaceMono: require("../../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  const { authState, onLogout } = useAuth();
+  const { authState } = useAuth();
 
   useEffect(() => {
     if (loaded) {
@@ -35,8 +35,6 @@ export default function AppLayout() {
   if (authState && authState.authenticated === false) {
     return <Redirect href="/login" />;
   }
-
-  console.log(authState);
 
   return (
     <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
