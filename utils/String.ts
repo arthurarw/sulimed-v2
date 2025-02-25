@@ -1,12 +1,13 @@
 import { format, formatInTimeZone } from "date-fns-tz";
 import { TIMEZONE } from "./Settings";
+import { ptBR } from "date-fns/locale";
 
 export const formatBrazilTime = () => {
-  return formatInTimeZone(new Date(), TIMEZONE, 'yyyy-MM-dd HH:mm:ss');
+  return formatInTimeZone(new Date(), TIMEZONE, 'yyyy-MM-dd HH:mm:ss', { locale: ptBR });
 };
 
 export const formatBrazilDate = () => {
-  return formatInTimeZone(new Date(), TIMEZONE, 'yyyy-MM-dd');
+  return formatInTimeZone(new Date(), TIMEZONE, 'yyyy-MM-dd', { locale: ptBR });
 };
 
 export const formatBrazilDateTimeNew = (date: string) => {
@@ -25,4 +26,13 @@ export const anonymizeDocument = (document: string) => {
   } else {
     throw new Error('Invalid CPF or CNPJ format');
   }
+}
+
+export const convertBrazilianDate = (date: string | null) => {
+  if (!date) {
+    return null;
+  }
+
+  const [day, month, year] = date.split('/');
+  return `${year}-${month}-${day}`;
 }

@@ -143,8 +143,6 @@ export interface PersonContract {
   person: {
     name: string;
     email: string;
-    phone: string;
-    telephone: string;
     zipcode: string;
     streetId: number | null;
     neighborhoodId: number | null;

@@ -1,8 +1,7 @@
 import AppService from "@/services/AppService";
-import { BusinessContract, Contract, ContractCustomerList, CustomerDatabase, LocalCategory, LocalCity, LocalKinship, LocalNeighborhood } from "@/types/Database";
+import { BusinessContract, Contract, ContractCustomerList, LocalCategory, LocalCity, LocalKinship, LocalNeighborhood } from "@/types/Database";
 import { DATABASE_NAME } from "@/utils/Settings";
-import { formatInTimeZone } from "date-fns-tz";
-import { ptBR } from 'date-fns/locale';
+import { formatBrazilDate } from "@/utils/String";
 import * as SQLite from 'expo-sqlite';
 
 class AppRepository {
@@ -16,39 +15,9 @@ class AppRepository {
     this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
   }
 
-  public async store(data: Omit<CustomerDatabase, "id">) {
+  public async storeBusinessContract(data: Omit<BusinessContract, "id">) {
     const statement = await this.db.prepareAsync(
-      "INSERT INTO customers (name, email, phone, telephone, zipcode, street, neighborhood, city, state, number) VALUES ($name, $email, $phone, $telephone, $zipcode, $street,$neighborhood, $city, $state, $number)",
-    );
-
-    try {
-      const result = await statement.executeAsync({
-        $name: data.name,
-        $email: data.email,
-        $phone: data.phone,
-        $telephone: data.telephone ?? "",
-        $zipcode: data.zipcode ?? "",
-        $street: data.street ?? "",
-        $neighborhood: data.neighborhood ?? "",
-        $city: data.city ?? "",
-        $state: data.state ?? "",
-        $number: data.number ?? "",
-        $sync: 1,
-      });
-
-      const insertedRowId = result.lastInsertRowId.toLocaleString();
-
-      return { insertedRowId };
-    } catch (error) {
-      throw error;
-    } finally {
-      await statement.finalizeAsync();
-    }
-  }
-
-  public async storeBusinessContract(data: Omit<Contract, "id">) {
-    const statement = await this.db.prepareAsync(
-      "INSERT INTO contracts (is_company, colab_id, pre_contract,category_id,person_type,person_name,person_nickname,person_observation,gender,civil_state,observation,unity_consumer,dealership_id,phone_1,phone_2,cellphone,observation_phone_1,observation_phone_2,observation_cellphone,name,type,email,phone,telephone,zipcode,street_id,neighborhood_id,number,city_id,signature,created_at,sale_at,contract_at,document,document_2,mensality_price,due_contract_day,observation_remote,parents_address,father_name,mother_name,naturality_city,bankslip_installments_generated,bankslip_installments,membership_fee,account_holder_name,account_holder_type,account_document,account_document_2,action_registration,action_registration_send,installation_partner) VALUES ($is_company, $colab_id, $pre_contract, $category_id, $person_type, $person_name, $person_nickname, $person_observation, $gender, $civil_state, $observation, $unity_consumer, $dealership_id, $phone_1, $phone_2, $cellphone, $observation_phone_1, $observation_phone_2, $observation_cellphone, $name, $type, $email, $phone, $telephone, $zipcode, $street_id, $neighborhood_id, $number, $city_id, $signature, $created_at, $sale_at, $contract_at, $document, $document_2, $mensality_price, $due_contract_day, $observation_remote, $parents_address, $father_name, $mother_name, $naturality_city, $bankslip_installments_generated, $bankslip_installments, $membership_fee, $account_holder_name, $account_holder_type, $account_document, $account_document_2, $action_registration, $action_registration_send, $installation_partner)"
+      "INSERT INTO contracts (is_company, colab_id, pre_contract,category_id,person_type,person_name,person_nickname,person_observation,gender,civil_state,observation,unity_consumer,dealership_id,phone_1,phone_2,cellphone,observation_phone_1,observation_phone_2,observation_cellphone,name,type,email,phone,telephone,zipcode,street_id,neighborhood_id,number,city_id,signature,created_at,sale_at,contract_at,document,document_2,mensality_price,due_contract_day,observation_remote,parents_address,father_name,mother_name,naturality_city,bankslip_installments_generated,bankslip_installments,membership_fee,account_holder_name,account_holder_type,account_document,account_document_2,action_registration,action_registration_send,installation_partner) VALUES ($is_company, $colab_id, $pre_contract, $category_id, $person_type, $person_name, $person_nickname, $person_observation, $gender, $civil_state, $observation, $unity_consumer, $dealership_id, $phone_1, $phone_2, $cellphone, $observation_phone_1, $observation_phone_2, $observation_cellphone, $name, $type, $email, $zipcode, $street_id, $neighborhood_id, $number, $city_id, $signature, $created_at, $sale_at, $contract_at, $document, $document_2, $mensality_price, $due_contract_day, $observation_remote, $parents_address, $father_name, $mother_name, $naturality_city, $bankslip_installments_generated, $bankslip_installments, $membership_fee, $account_holder_name, $account_holder_type, $account_document, $account_document_2, $action_registration, $action_registration_send, $installation_partner)"
     );
 
     try {
@@ -66,17 +35,17 @@ class AppRepository {
         $name: data.name ?? '',
         $type: data.type ?? '',
         $email: data.email ?? '',
-        $phone: data.phone ?? '',
-        $telephone: data.telephone ?? '',
         $zipcode: data.zipcode ?? '',
         $street_id: data.street_id ?? '',
         $neighborhood_id: data.neighborhood_id ?? '',
         $number: data.number ?? '',
         $city_id: data.city_id ?? '',
-        $created_at: formatInTimeZone(new Date(), 'America/Sao_Paulo', 'yyyy-MM-dd HH:mm:ss', { locale: ptBR }),
+        $created_at: formatBrazilDate(),
+        $sale_at: data.sale_at ?? '',
+        $contract_at: data.contract_at ?? '',
         $document: data.document ?? '',
         $document_2: data.document_2 ?? '',
-        $sync: data.sync ?? true,
+        $sync: true,
       });
 
       const insertedRowId = result.lastInsertRowId.toLocaleString();
@@ -85,6 +54,7 @@ class AppRepository {
 
       return { insertedRowId };
     } catch (error) {
+      console.log('Errouuuu', error);
       throw error;
     } finally {
       await statement.finalizeAsync();
@@ -215,20 +185,6 @@ class AppRepository {
     }
   }
 
-  public async syncToServer(customers: CustomerDatabase[]) {
-    try {
-      //const ids = customers.map((customer) => customer.id);
-
-      customers.map(async (customer) => {
-        // TODO: Implement the logic to sync the customers with the server.
-
-        await this.setSyncConcluded(customer.id);
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
   public async fetchCities() {
     try {
       const query = "SELECT id, name FROM cities ORDER BY name ASC";
@@ -250,8 +206,11 @@ class AppRepository {
         await AppService.fetchBusinessCategories().then(async (categories) => {
           categories.map(async (category) => {
             await this.storeBusinessCategory(category.idCategoriaContratoEmpresarial, category.dsCategoriaContratoEmpresarial, category.valor, category.nroMaximoFuncionarios);
+            console.log('Categoria Empresarial inserida: ', category.idCategoriaContratoEmpresarial);
           });
         });
+
+        return await this.db.getAllAsync(query);
       }
 
       return results;
@@ -275,6 +234,31 @@ class AppRepository {
     try {
       const query = "SELECT id, name FROM neighborhoods ORDER BY name ASC";
       const results: LocalNeighborhood[] = await this.db.getAllAsync(query);
+
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async fetchCategoriesContract() {
+    try {
+      const query = "SELECT id, description, price FROM contract_categories ORDER BY description ASC";
+      const results: Omit<LocalCategory[], "max_colabs"> = await this.db.getAllAsync(query);
+
+      console.log('Results Categories', results);
+
+      if (!results || results.length === 0) {
+        console.log('Fetching contracts from server...');
+        await AppService.fetchCategories().then(async (categories) => {
+          categories.map(async (category) => {
+            await this.storeCategory(category.idCategoriaContrato, category.dsCategoriaContrato, category.valor);
+            console.log('Categoria inserida: ', category.idCategoriaContrato);
+          });
+        });
+
+        return await this.db.getAllAsync(query);
+      }
 
       return results;
     } catch (error) {
@@ -328,7 +312,7 @@ class AppRepository {
 
   public async storeBusinessCategory(id: number, name: string, price: string, maxColabs: number) {
     const statement = await this.db.prepareAsync(
-      "INSERT INTO contract_business_categories (id, description, price, max_colabs) VALUES ($id, $name, $price, $max_colabs)"
+      "INSERT INTO contract_business_categories (id, description, price, max_colabs) VALUES ($id, $description, $price, $max_colabs)"
     );
 
     try {
@@ -351,12 +335,37 @@ class AppRepository {
     }
   }
 
+  public async storeCategory(id: number, name: string, price: string) {
+    const statement = await this.db.prepareAsync(
+      "INSERT INTO contract_categories (id, description, price) VALUES ($id, $description, $price)"
+    );
+
+    try {
+      const result = await statement.executeAsync({
+        $id: id,
+        $description: name,
+        $price: price
+      });
+
+      const insertedRowId = result.lastInsertRowId.toLocaleString();
+
+      console.log('Categoria inserida: ', insertedRowId);
+
+      return { insertedRowId };
+    } catch (error) {
+      throw error;
+    } finally {
+      await statement.finalizeAsync();
+    }
+  }
+
   public async syncTablesToServer() {
     try {
       console.log('Dropping tables...');
       await this.db.execAsync(`DROP TABLE IF EXISTS cities;`);
       await this.db.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
       await this.db.execAsync(`DROP TABLE IF EXISTS streets;`);
+      await this.db.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
       await this.db.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
 
       console.log('Creating tables...');
@@ -387,6 +396,14 @@ class AppRepository {
         );
       `);
 
+      await this.db.execAsync(`
+        CREATE TABLE IF NOT EXISTS contract_categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          price NUMERIC NOT NULL,
+          description TEXT NOT NULL
+        );
+      `);
+
 
       console.log('Inserting values...');
       await AppService.fetchCities().then(async (cities) => {
@@ -410,6 +427,8 @@ class AppRepository {
       });
 
       await this.fetchCategoriesBusinessContracts();
+
+      await this.fetchCategoriesContract();
 
       return;
     } catch (error) {

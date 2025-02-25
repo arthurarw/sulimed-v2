@@ -11,7 +11,7 @@ export const useApp = () => {
     }
   }
 
-  async function fetchBusinessContracts(): Promise<LocalCategory[]> {
+  async function fetchCategoriesBusinessContracts(): Promise<LocalCategory[]> {
     try {
       return await appRepository.fetchCategoriesBusinessContracts();
     } catch (error) {
@@ -47,5 +47,14 @@ export const useApp = () => {
     }
   }
 
-  return { fetchCities, fetchBusinessContracts, fetchStreets, fetchNeighborhoods };
+  async function fetchCategoriesContracts(): Promise<Omit<LocalCategory[], 'max_colabs'>> {
+    try {
+      return await appRepository.fetchCategoriesContract();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  return { fetchCities, fetchCategoriesBusinessContracts, fetchStreets, fetchNeighborhoods, fetchCategoriesContracts };
 };

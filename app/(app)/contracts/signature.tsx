@@ -1,14 +1,48 @@
 import { useLocalSearchParams } from "expo-router";
 import Drawer from "expo-router/drawer";
-import { SafeAreaView, StatusBar, StyleSheet, Text } from "react-native";
+import { useRef } from "react";
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+} from "react-native";
+import SignatureScreen, {
+  SignatureViewRef,
+} from "react-native-signature-canvas";
 
 export default function Screen() {
   const { contractId } = useLocalSearchParams();
+
+  const ref = useRef<SignatureViewRef>(null);
+
+  const handleOK = async (signature: string) => {
+    console.log(typeof signature);
+    console.log(signature);
+  };
+
+  const handleClear = () => {
+    ref.current?.clearSignature();
+  };
+
+  const handleConfirm = () => {
+    console.log("end");
+    ref.current?.readSignature();
+  };
+
+  const style = ".m-signature-pad--footer {display: none; margin: 0px;}";
 
   return (
     <SafeAreaView style={styles.container}>
       <Drawer.Screen options={{ title: "Assinar Contrato #" + contractId }} />
       <Text style={styles.title}>Assinar Contrato #{contractId}</Text>
+      <SignatureScreen ref={ref} onOK={handleOK} webStyle={style} />
+      <View style={styles.row}>
+        <Button title="Limpar" onPress={handleClear} />
+        <Button title="Salvar" onPress={handleConfirm} />
+      </View>
     </SafeAreaView>
   );
 }

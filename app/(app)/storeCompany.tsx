@@ -31,14 +31,17 @@ export default function Screen() {
   const { isConnected } = useConnection();
   const {
     fetchCities,
-    fetchBusinessContracts,
+    fetchCategoriesBusinessContracts,
     fetchStreets,
     fetchNeighborhoods,
+    fetchCategoriesContracts,
   } = useApp();
   const [cities, setCities] = useState<LocalCity[]>([]);
-  const [businessContracts, setBusinessContracts] = useState<LocalCategory[]>(
-    [],
-  );
+  const [categoriesBusinessContracts, setCategoriesBusinessContracts] =
+    useState<LocalCategory[]>([]);
+  const [categoriesContracts, setCategoriesContracts] = useState<
+    LocalCategory[]
+  >([]);
   const [streets, setStreets] = useState<LocalStreet[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<LocalNeighborhood[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,15 +51,16 @@ export default function Screen() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       business_category_id: "",
+      category_id: "",
+      mensality_price: "",
       name: "",
       document: "",
       document2: "",
       email: "",
-      phone: "",
-      telephone: "",
       zipcode: "",
       city_id: "",
       street_id: "",
@@ -96,6 +100,7 @@ export default function Screen() {
         .storeBusinessContract(data)
         .then((response) => response.insertedRowId)
         .catch((error) => {
+          console.log(error);
           Alert.alert(
             "Erro",
             "Ooops!! Ocorreu um erro ao cadastrar o contrato.",
@@ -103,10 +108,14 @@ export default function Screen() {
           return;
         });
 
-      router.navigate({
-        pathname: "/contracts/signature",
-        params: { contractId: id.toString() },
-      });
+      if (id) {
+        router.navigate({
+          pathname: "/contracts/signature",
+          params: { contractId: id },
+        });
+      }
+
+      console.log("Contrato Salvo:", id);
     } catch (error) {
       console.log(error);
       Alert.alert("Erro", "Ooops!! Ocorreu um erro ao salvar o cliente.");
@@ -116,12 +125,15 @@ export default function Screen() {
   const loadData = async () => {
     setIsLoading(true);
     const cities = await fetchCities();
-    const businessContracts = await fetchBusinessContracts();
+    const categoriesContracts = await fetchCategoriesContracts();
+    const categoriesBusinessContracts =
+      await fetchCategoriesBusinessContracts();
     const streets = await fetchStreets();
     const neighborhoods = await fetchNeighborhoods();
 
     setCities(cities);
-    setBusinessContracts(businessContracts);
+    setCategoriesContracts(categoriesContracts);
+    setCategoriesBusinessContracts(categoriesBusinessContracts);
     setStreets(streets);
     setNeighborhoods(neighborhoods);
     setIsLoading(false);
@@ -133,6 +145,19 @@ export default function Screen() {
     }, []),
   );
 
+  const onChangeBusinessCategory = (value: number) => {
+    const category = categoriesBusinessContracts.find(
+      (item) => item.id === value,
+    );
+
+    if (category) {
+      setValue("mensality_price", category.price.toString());
+      return;
+    }
+
+    setValue("mensality_price", "0");
+  };
+
   return (
     <SafeAreaView style={styleStore.container}>
       {isLoading ? (
@@ -143,17 +168,21 @@ export default function Screen() {
             control={control}
             render={({ field: { onChange, onBlur, value } }) => (
               <Dropdown
-                data={businessContracts.map((item) => ({
+                data={categoriesBusinessContracts.map((item) => ({
                   label: item.description,
                   value: item.id,
                 }))}
                 search
                 maxHeight={200}
-                placeholder="Selecione a Cat. do Contrato"
+                placeholder="Selecione a Cat. Emp. do Contrato"
                 value={value}
                 style={styleStore.input}
-                searchPlaceholder="Buscar Categoria"
-                onChange={onChange}
+                searchPlaceholder="Buscar Categoria Empresarial"
+                onChange={(item) => {
+                  console.log("uqq", item);
+                  onChange(item);
+                  onChangeBusinessCategory(item.value);
+                }}
                 onBlur={onBlur}
                 labelField={"label"}
                 valueField={"value"}
@@ -164,6 +193,54 @@ export default function Screen() {
           {errors.business_category_id && (
             <Text style={styleStore.errorText}>
               {errors.business_category_id.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O valor da mensalidade é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Valor da Mensalidade"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="mensality_price"
+          />
+          {errors.mensality_price && (
+            <Text style={styleStore.errorText}>
+              {errors.mensality_price.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={categoriesContracts.map((item) => ({
+                  label: item.description,
+                  value: item.id,
+                }))}
+                search
+                maxHeight={200}
+                placeholder="Selecione a Cat. Ind. do Contrato"
+                value={value}
+                style={styleStore.input}
+                searchPlaceholder="Buscar Categoria Individual"
+                onChange={onChange}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="category_id"
+          />
+          {errors.category_id && (
+            <Text style={styleStore.errorText}>
+              {errors.category_id.message}
             </Text>
           )}
 
@@ -336,7 +413,7 @@ export default function Screen() {
                 style={styleStore.input}
                 placeholder="CEP"
                 value={value}
-                mask="99999999"
+                mask="99999-999"
                 onChangeText={onChange}
                 onBlur={onBlur}
                 keyboardType="phone-pad"
@@ -513,12 +590,13 @@ export default function Screen() {
             control={control}
             rules={{ required: "A data da venda é obrigatória." }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <MaskedTextInput
                 style={styleStore.input}
                 placeholder="Data da Venda"
                 value={value}
-                keyboardType="phone-pad"
+                mask="99/99/9999"
                 onChangeText={onChange}
+                keyboardType="phone-pad"
                 onBlur={onBlur}
               />
             )}
@@ -532,12 +610,13 @@ export default function Screen() {
             control={control}
             rules={{ required: "A data do contrato é obrigatória." }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <MaskedTextInput
                 style={styleStore.input}
                 placeholder="Data do Contrato"
                 value={value}
-                keyboardType="phone-pad"
+                mask="99/99/9999"
                 onChangeText={onChange}
+                keyboardType="phone-pad"
                 onBlur={onBlur}
               />
             )}

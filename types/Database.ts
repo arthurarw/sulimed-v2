@@ -1,19 +1,3 @@
-export interface CustomerDatabase {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  telephone?: string;
-  zipcode?: string;
-  street?: string;
-  neighborhood?: string;
-  city?: string;
-  state?: string;
-  number?: string;
-  signature?: string;
-  sync?: boolean;
-}
-
 export interface ContractCustomerList {
   id: number;
   name: string;
@@ -45,8 +29,6 @@ export interface Contract {
   name: string;
   type: string;
   email: string;
-  phone: string;
-  telephone: string;
   zipcode: string;
   street_id: string;
   neighborhood_id: string;
@@ -102,7 +84,7 @@ export interface LocalCategory {
   id: number;
   description: string;
   price: number;
-  max_colabs: number;
+  max_colabs?: number;
 }
 
 export interface BusinessContract {
