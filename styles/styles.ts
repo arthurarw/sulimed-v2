@@ -14,6 +14,11 @@ export const styleStore = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
+  text: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
   input: {
     height: 50,
     width: "100%",
@@ -39,6 +44,13 @@ export const styleStore = StyleSheet.create({
   },
   buttonWarning: {
     backgroundColor: "#f39c12",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    textTransform: "uppercase",
+  },
+  buttonBlue: {
+    backgroundColor: "#3498db",
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 8,

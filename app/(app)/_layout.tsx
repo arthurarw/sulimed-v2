@@ -110,6 +110,15 @@ export default function AppLayout() {
                 },
               }}
             />
+            <Drawer.Screen
+              name="contracts/dependents"
+              options={{
+                title: "Adicionar Dependente",
+                drawerItemStyle: {
+                  display: "none",
+                },
+              }}
+            />
           </Drawer>
         </GestureHandlerRootView>
       </ThemeProvider>

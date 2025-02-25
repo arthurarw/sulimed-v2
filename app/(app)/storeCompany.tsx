@@ -166,6 +166,7 @@ export default function Screen() {
         <ScrollView>
           <Controller
             control={control}
+            rules={{ required: "A categoria do contrato é obrigatória." }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Dropdown
                 data={categoriesBusinessContracts.map((item) => ({
@@ -217,6 +218,7 @@ export default function Screen() {
 
           <Controller
             control={control}
+            rules={{ required: "A categoria do contrato é obrigatória." }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Dropdown
                 data={categoriesContracts.map((item) => ({

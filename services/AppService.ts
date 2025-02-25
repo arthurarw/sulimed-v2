@@ -1,6 +1,6 @@
 import { BusinessContract, IndividualContract } from '@/types/Database';
 import { City, ContractBusinessCategories, ContractCategories, Neighborhood, Street } from '@/types/Ecard';
-import { convertBrazilianDate } from '@/utils/String';
+import { convertBrazilianDate, formatBrazilDate, formatBrazilDateTimeNew, formatBrazilTime } from '@/utils/String';
 import axios, { AxiosInstance } from 'axios';
 
 class AppApi {
@@ -177,14 +177,14 @@ class AppApi {
         "nmMae": body.mother_name,
         "idCidadeNaturalidade": body.naturality_city,
         "codigoConcessionaria": body.dealership_id,
-        "dtInsercao": convertBrazilianDate(body.created_at),
+        "dtInsercao": formatBrazilTime(),
         "obsCadastroRemoto": body.observation_remote,
         "pessoa": {
           "idPessoa": null,
           "ativa": "S",
           "nmPessoa": body.name,
           "apelidoFantasia": body.person_nickname,
-          "tipo": "J",
+          "tipo": "F",
           "cep": body.zipcode,
           "numero": body.number,
           "complemento": body.complement,
@@ -217,9 +217,11 @@ class AppApi {
         }) : []
       }
 
-      const { data } = await this.client.post('/insereContratoPj', payload);
+      console.log('Body Store', payload);
 
-      return data.idContratoEmpresarial;
+      const { data } = await this.client.post('/insereContrato', payload);
+
+      return data.idContrato;
     } catch (error) {
       console.log(error);
       throw error;

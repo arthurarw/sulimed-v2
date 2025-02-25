@@ -15,6 +15,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Dropdown } from "react-native-element-dropdown";
 import {
   ActivityIndicator,
+  Alert,
   Button,
   SafeAreaView,
   ScrollView,
@@ -29,6 +30,7 @@ import SignatureScreen, {
   SignatureViewRef,
 } from "react-native-signature-canvas";
 import { MaskedTextInput } from "react-native-mask-text";
+import { appRepository } from "@/repositories/AppRepository";
 
 export default function Screen() {
   const { authState } = useAuth();
@@ -140,9 +142,37 @@ export default function Screen() {
   };
 
   const onSubmit = async (data: any) => {
-    console.log(data);
-  };
+    try {
+      const hasNetwork = await isConnected();
+      if (!hasNetwork) {
+        Alert.alert("Erro", "Ooops!! Sem conexão com a internet.");
+        return;
+      }
 
+      const id = await appRepository
+        .storeIndividualContract(data)
+        .then((response) => response.insertedRowId)
+        .catch((error) => {
+          Alert.alert(
+            "Erro",
+            "Ooops!! Ocorreu um erro ao cadastrar o contrato.",
+          );
+          return;
+        });
+
+      if (id) {
+        router.navigate({
+          pathname: "/contracts/dependents",
+          params: { contractId: id },
+        });
+      }
+
+      console.log("Contrato Salvo:", id);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Erro", "Ooops!! Ocorreu um erro ao salvar o cliente.");
+    }
+  };
   const loadData = async () => {
     setIsLoading(true);
     const cities = await fetchCities();
@@ -182,6 +212,7 @@ export default function Screen() {
         <ScrollView>
           <Controller
             control={control}
+            rules={{ required: "A categoria do contrato é obrigatória." }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Dropdown
                 data={categoriesContracts.map((item) => ({
@@ -665,8 +696,6 @@ export default function Screen() {
                 style={styleStore.input}
                 placeholder="Nome do pai"
                 value={value}
-                maxLength={2}
-                keyboardType="phone-pad"
                 onChangeText={onChange}
                 onBlur={onBlur}
               />
@@ -689,8 +718,6 @@ export default function Screen() {
                 style={styleStore.input}
                 placeholder="Nome da mãe"
                 value={value}
-                maxLength={2}
-                keyboardType="phone-pad"
                 onChangeText={onChange}
                 onBlur={onBlur}
               />
@@ -713,8 +740,6 @@ export default function Screen() {
                 style={styleStore.input}
                 placeholder="Endereço dos pais"
                 value={value}
-                maxLength={2}
-                keyboardType="phone-pad"
                 onChangeText={onChange}
                 onBlur={onBlur}
               />
@@ -878,7 +903,7 @@ export default function Screen() {
               onPress={handleSubmit(onSubmit)}
             >
               <Text style={styleStore.buttonText}>
-                Salvar e Assinar Contrato
+                Salvar e Adicionar Dependentes
               </Text>
             </TouchableOpacity>
           </View>
