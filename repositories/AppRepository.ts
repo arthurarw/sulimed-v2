@@ -1,5 +1,5 @@
 import AppService from "@/services/AppService";
-import { BusinessContract, Contract, ContractCustomerList, LocalCategory, LocalCity, LocalKinship, LocalNeighborhood } from "@/types/Database";
+import { BusinessContract, Contract, ContractCustomerList, LocalCategory, LocalCity, LocalNeighborhood } from "@/types/Database";
 import { CHUNK_SIZE, DATABASE_NAME } from "@/utils/Settings";
 import { formatBrazilDate, formatBrazilTime } from "@/utils/String";
 import * as SQLite from 'expo-sqlite';
@@ -127,7 +127,7 @@ class AppRepository {
           }
 
           if (contract.signature) {
-            await AppService.sendSignature(contractId, contract.signature);
+            await AppService.sendSignature(contractId, contract.signature, true);
           }
 
           await this.setContractSyncConcluded(contract.id);
@@ -290,26 +290,6 @@ class AppRepository {
         });
 
         return await this.db.getAllAsync(query);
-      }
-
-      return results;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  public async fetchKinships() {
-    try {
-      const query = "SELECT id, name FROM kinships ORDER BY name ASC";
-      const results: LocalKinship[] = await this.db.getAllAsync(query);
-
-      if (!results || results.length === 0) {
-        console.log('Fetching kinships from server...');
-        await AppService.fetchKinships().then(async (kinships) => {
-          kinships.map(async (kinship) => {
-            await this.db.execAsync(`INSERT INTO kinships (id, name) VALUES ('${kinship.idGrauParentesco}', '${kinship.dsGrauParentesco}')`);
-          });
-        });
       }
 
       return results;
@@ -511,6 +491,82 @@ class AppRepository {
     } catch (error) {
       throw error;
     }
+  }
+
+  public fetchKinships() {
+    const data = [
+      {
+        "idGrauParentesco": 1,
+        "dsGrauParentesco": "FILHO(A)"
+      },
+      {
+        "idGrauParentesco": 2,
+        "dsGrauParentesco": "ESPOSO(A)"
+      },
+      {
+        "idGrauParentesco": 3,
+        "dsGrauParentesco": "AVÔ(Ó)"
+      },
+      {
+        "idGrauParentesco": 4,
+        "dsGrauParentesco": "MÃE / PAI"
+      },
+      {
+        "idGrauParentesco": 5,
+        "dsGrauParentesco": "TIO(A)"
+      },
+      {
+        "idGrauParentesco": 6,
+        "dsGrauParentesco": "SOGRO(A)"
+      },
+      {
+        "idGrauParentesco": 7,
+        "dsGrauParentesco": "OUTROS"
+      },
+      {
+        "idGrauParentesco": 8,
+        "dsGrauParentesco": "IRMÃ(O)"
+      },
+      {
+        "idGrauParentesco": 9,
+        "dsGrauParentesco": "GENRO/NORA"
+      },
+      {
+        "idGrauParentesco": 10,
+        "dsGrauParentesco": "ENTEADO(A)"
+      },
+      {
+        "idGrauParentesco": 11,
+        "dsGrauParentesco": "NETO(A)"
+      },
+      {
+        "idGrauParentesco": 12,
+        "dsGrauParentesco": "PRIMO (A)"
+      },
+      {
+        "idGrauParentesco": 13,
+        "dsGrauParentesco": "SOBRINHO (A)"
+      },
+      {
+        "idGrauParentesco": 14,
+        "dsGrauParentesco": "NAMORADO (A)"
+      },
+      {
+        "idGrauParentesco": 15,
+        "dsGrauParentesco": "PADASTRO / MADASTRA"
+      },
+      {
+        "idGrauParentesco": 17,
+        "dsGrauParentesco": "CUNHADO (A)"
+      }
+    ];
+
+    return data.map((kinship) => {
+      return {
+        id: kinship.idGrauParentesco,
+        label: kinship.dsGrauParentesco
+      }
+    })
   }
 }
 

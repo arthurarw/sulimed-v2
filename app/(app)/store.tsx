@@ -1,60 +1,889 @@
-import { useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useApp } from "@/hooks/useApp";
+import { useConnection } from "@/hooks/useConnection";
+import { styleStore } from "@/styles/styles";
 import {
+  LocalCategory,
+  LocalCity,
+  LocalNeighborhood,
+  LocalStreet,
+} from "@/types/Database";
+import { useFocusEffect } from "@react-navigation/native";
+import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Dropdown } from "react-native-element-dropdown";
+import {
+  ActivityIndicator,
   Button,
   SafeAreaView,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import SignatureScreen, {
   SignatureViewRef,
 } from "react-native-signature-canvas";
+import { MaskedTextInput } from "react-native-mask-text";
 
 export default function Screen() {
-  const ref = useRef<SignatureViewRef>(null);
+  const { authState } = useAuth();
+  const { isConnected } = useConnection();
+  const {
+    fetchCities,
+    fetchStreets,
+    fetchNeighborhoods,
+    fetchCategoriesContracts,
+  } = useApp();
+  const [cities, setCities] = useState<LocalCity[]>([]);
+  const [categoriesContracts, setCategoriesContracts] = useState<
+    LocalCategory[]
+  >([]);
+  const [streets, setStreets] = useState<LocalStreet[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<LocalNeighborhood[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleOK = async (signature: string) => {
-    console.log(typeof signature);
-    console.log(signature);
+  const dealerships = [
+    {
+      id: 31,
+      label: "RGE",
+    },
+    {
+      id: 98,
+      label: "RGE-SUL",
+    },
+    {
+      id: 26,
+      label: "CELESC",
+    },
+  ];
+
+  const civilState = [
+    {
+      id: 0,
+      label: "Casado(a)",
+    },
+    {
+      id: 1,
+      label: "Solteiro(a)",
+    },
+    {
+      id: 2,
+      label: "Viúvo(a)",
+    },
+    {
+      id: 3,
+      label: "Separado(a)",
+    },
+  ];
+
+  const genders = [
+    {
+      id: 0,
+      label: "Feminino",
+    },
+    {
+      id: 1,
+      label: "Masculino",
+    },
+  ];
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      category_id: "",
+      mensality_price: "",
+      name: "",
+      document: "",
+      document2: "",
+      email: "",
+      zipcode: "",
+      city_id: "",
+      street_id: "",
+      neighborhood_id: "",
+      number: "",
+      person_nickname: "",
+      person_type: "F",
+      colab_id: authState ? authState.userId : "",
+      phone_1: "",
+      phone_2: "",
+      observation_phone_1: "",
+      observation_phone_2: "",
+      complement: "",
+      sale_at: "",
+      contract_at: "",
+      observation_remote: "",
+      observation: "",
+      father_name: "",
+      mother_name: "",
+      parents_address: "",
+      naturality_city: "",
+      birthday: "",
+      dealership_id: "",
+      gender: "",
+      civil_state: "",
+    },
+  });
+
+  const handleCancel = () => {
+    reset();
+    return router.push("/");
   };
 
-  const handleClear = () => {
-    ref.current?.clearSignature();
+  const onSubmit = async (data: any) => {
+    console.log(data);
   };
 
-  const handleConfirm = () => {
-    console.log("end");
-    ref.current?.readSignature();
+  const loadData = async () => {
+    setIsLoading(true);
+    const cities = await fetchCities();
+    const categoriesContracts = await fetchCategoriesContracts();
+    const streets = await fetchStreets();
+    const neighborhoods = await fetchNeighborhoods();
+
+    setCities(cities);
+    setCategoriesContracts(categoriesContracts);
+    setStreets(streets);
+    setNeighborhoods(neighborhoods);
+    setIsLoading(false);
   };
 
-  const style = ".m-signature-pad--footer {display: none; margin: 0px;}";
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, []),
+  );
+
+  const onChangeCategoriy = (value: number) => {
+    const category = categoriesContracts.find((item) => item.id === value);
+
+    if (category) {
+      setValue("mensality_price", category.price.toString());
+      return;
+    }
+
+    setValue("mensality_price", "0");
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>STORE CUSTOMERX</Text>
-      <SignatureScreen ref={ref} onOK={handleOK} webStyle={style} />
-      <View style={styles.row}>
-        <Button title="Clear" onPress={handleClear} />
-        <Button title="Confirm" onPress={handleConfirm} />
-      </View>
+    <SafeAreaView style={styleStore.container}>
+      {isLoading ? (
+        <ActivityIndicator size={"large"} color={"#1D643B"} />
+      ) : (
+        <ScrollView>
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={categoriesContracts.map((item) => ({
+                  label: item.description,
+                  value: item.id,
+                }))}
+                search
+                maxHeight={200}
+                placeholder="Selecione a Cat. Ind. do Contrato"
+                value={value}
+                style={styleStore.input}
+                searchPlaceholder="Buscar Categoria Individual"
+                onChange={(item) => {
+                  onChange(item.value);
+                  onChangeCategoriy(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="category_id"
+          />
+          {errors.category_id && (
+            <Text style={styleStore.errorText}>
+              {errors.category_id.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O valor da mensalidade é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Valor da Mensalidade"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="mensality_price"
+          />
+          {errors.mensality_price && (
+            <Text style={styleStore.errorText}>
+              {errors.mensality_price.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={dealerships.map((item) => ({
+                  label: item.label,
+                  value: item.id,
+                }))}
+                maxHeight={200}
+                placeholder="Selecione a Concessionária"
+                value={value}
+                style={styleStore.input}
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="dealership_id"
+          />
+          {errors.dealership_id && (
+            <Text style={styleStore.errorText}>
+              {errors.dealership_id.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={genders.map((item) => ({
+                  label: item.label,
+                  value: item.id,
+                }))}
+                maxHeight={200}
+                placeholder="Sexo"
+                value={value}
+                style={styleStore.input}
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="gender"
+          />
+          {errors.gender && (
+            <Text style={styleStore.errorText}>{errors.gender.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O nome é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Nome"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="name"
+          />
+          {errors.name && (
+            <Text style={styleStore.errorText}>{errors.name.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O apelido é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Apelido"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="person_nickname"
+          />
+          {errors.person_nickname && (
+            <Text style={styleStore.errorText}>
+              {errors.person_nickname.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "O CPF é obrigatório",
+              pattern: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <MaskedTextInput
+                style={styleStore.input}
+                placeholder="CPF"
+                value={value}
+                mask="999.999.999-99"
+                onChangeText={onChange}
+                keyboardType="phone-pad"
+                onBlur={onBlur}
+              />
+            )}
+            name="document"
+          />
+          {errors.document && (
+            <Text style={styleStore.errorText}>{errors.document.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={civilState.map((item) => ({
+                  label: item.label,
+                  value: item.id,
+                }))}
+                maxHeight={200}
+                placeholder="Estado Civil"
+                value={value}
+                style={styleStore.input}
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="civil_state"
+          />
+          {errors.civil_state && (
+            <Text style={styleStore.errorText}>
+              {errors.civil_state.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "A data de nascimento é obrigatória.",
+              validate: (value) => {
+                const date = value.split("/");
+                if (date.length !== 3) {
+                  return false;
+                }
+                const day = parseInt(date[0]);
+                const month = parseInt(date[1]);
+                const year = parseInt(date[2]);
+                return (
+                  day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                );
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <MaskedTextInput
+                style={styleStore.input}
+                placeholder="Data de Nascimento"
+                value={value}
+                mask="99/99/9999"
+                onChangeText={onChange}
+                keyboardType="phone-pad"
+                onBlur={onBlur}
+              />
+            )}
+            name="birthday"
+          />
+          {errors.birthday && (
+            <Text style={styleStore.errorText}>{errors.birthday.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "O e-mail é obrigatório",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "E-mail inválido",
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="E-mail"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                keyboardType="email-address"
+              />
+            )}
+            name="email"
+          />
+          {errors.email && (
+            <Text style={styleStore.errorText}>{errors.email.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O celular é obrigatório" }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <MaskedTextInput
+                style={styleStore.input}
+                placeholder="Celular"
+                value={value}
+                mask="(99)99999-9999"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                keyboardType="phone-pad"
+              />
+            )}
+            name="phone_1"
+          />
+          {errors.phone_1 && (
+            <Text style={styleStore.errorText}>{errors.phone_1.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O campo é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Observação Celular"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="observation_phone_1"
+          />
+          {errors.observation_phone_1 && (
+            <Text style={styleStore.errorText}>
+              {errors.observation_phone_1.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <MaskedTextInput
+                style={styleStore.input}
+                placeholder="Telefone"
+                value={value}
+                mask="(99)9999-9999"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                keyboardType="phone-pad"
+              />
+            )}
+            name="phone_2"
+          />
+          {errors.phone_2 && (
+            <Text style={styleStore.errorText}>{errors.phone_2.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Observação Telefone"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="observation_phone_2"
+          />
+          {errors.observation_phone_2 && (
+            <Text style={styleStore.errorText}>
+              {errors.observation_phone_2.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O CEP é obrigatório" }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <MaskedTextInput
+                style={styleStore.input}
+                placeholder="CEP"
+                value={value}
+                mask="99999-999"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                keyboardType="phone-pad"
+              />
+            )}
+            name="zipcode"
+          />
+          {errors.zipcode && (
+            <Text style={styleStore.errorText}>{errors.zipcode.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Complemento"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="complement"
+          />
+          {errors.complement && (
+            <Text style={styleStore.errorText}>
+              {errors.complement.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Número"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="number"
+          />
+          {errors.number && (
+            <Text style={styleStore.errorText}>{errors.number.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "A rua é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={streets.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+                placeholder="Selecione a Rua"
+                search
+                maxHeight={200}
+                value={value}
+                style={styleStore.input}
+                searchPlaceholder="Buscar Rua"
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="street_id"
+          />
+          {errors.street_id && (
+            <Text style={styleStore.errorText}>{errors.street_id.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O bairro é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={neighborhoods.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+                search
+                maxHeight={200}
+                placeholder="Selecione o Bairro"
+                value={value}
+                style={styleStore.input}
+                searchPlaceholder="Buscar Bairro"
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="neighborhood_id"
+          />
+          {errors.neighborhood_id && (
+            <Text style={styleStore.errorText}>
+              {errors.neighborhood_id.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={cities.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+                search
+                maxHeight={200}
+                value={value}
+                style={styleStore.input}
+                placeholder="Selecione a Cidade"
+                searchPlaceholder="Buscar Cidade"
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="city_id"
+          />
+          {errors.city_id && (
+            <Text style={styleStore.errorText}>{errors.city_id.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "O campo é obrigatório",
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Nome do pai"
+                value={value}
+                maxLength={2}
+                keyboardType="phone-pad"
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="father_name"
+          />
+          {errors.father_name && (
+            <Text style={styleStore.errorText}>
+              {errors.father_name.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "O campo é obrigatório",
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Nome da mãe"
+                value={value}
+                maxLength={2}
+                keyboardType="phone-pad"
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="mother_name"
+          />
+          {errors.mother_name && (
+            <Text style={styleStore.errorText}>
+              {errors.mother_name.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "O campo é obrigatório",
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Endereço dos pais"
+                value={value}
+                maxLength={2}
+                keyboardType="phone-pad"
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="parents_address"
+          />
+          {errors.parents_address && (
+            <Text style={styleStore.errorText}>
+              {errors.parents_address.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={cities.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+                search
+                maxHeight={200}
+                value={value}
+                style={styleStore.input}
+                placeholder="Selecione a Cidade de Naturalidade"
+                searchPlaceholder="Buscar Cidade"
+                onChange={(item) => {
+                  onChange(item.value);
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="naturality_city"
+          />
+          {errors.naturality_city && (
+            <Text style={styleStore.errorText}>
+              {errors.naturality_city.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "A data da venda é obrigatória.",
+              validate: (value) => {
+                const date = value.split("/");
+                if (date.length !== 3) {
+                  return false;
+                }
+                const day = parseInt(date[0]);
+                const month = parseInt(date[1]);
+                const year = parseInt(date[2]);
+                return (
+                  day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                );
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <MaskedTextInput
+                style={styleStore.input}
+                placeholder="Data da Venda"
+                value={value}
+                mask="99/99/9999"
+                onChangeText={onChange}
+                keyboardType="phone-pad"
+                onBlur={onBlur}
+              />
+            )}
+            name="sale_at"
+          />
+          {errors.sale_at && (
+            <Text style={styleStore.errorText}>{errors.sale_at.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "A data do contrato é obrigatória.",
+              validate: (value) => {
+                const date = value.split("/");
+                if (date.length !== 3) {
+                  return false;
+                }
+                const day = parseInt(date[0]);
+                const month = parseInt(date[1]);
+                const year = parseInt(date[2]);
+                return (
+                  day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                );
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <MaskedTextInput
+                style={styleStore.input}
+                placeholder="Data do Contrato"
+                value={value}
+                mask="99/99/9999"
+                onChangeText={onChange}
+                keyboardType="phone-pad"
+                onBlur={onBlur}
+              />
+            )}
+            name="contract_at"
+          />
+          {errors.contract_at && (
+            <Text style={styleStore.errorText}>
+              {errors.contract_at.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{ required: "O campo é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Observação"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="observation"
+          />
+          {errors.observation && (
+            <Text style={styleStore.errorText}>
+              {errors.observation.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Observação Remota"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="observation_remote"
+          />
+          {errors.observation_remote && (
+            <Text style={styleStore.errorText}>
+              {errors.observation_remote.message}
+            </Text>
+          )}
+
+          <View style={styleStore.btnContainer}>
+            <TouchableOpacity
+              style={styleStore.buttonCancel}
+              onPress={handleCancel}
+            >
+              <Text style={styleStore.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styleStore.button}
+              onPress={handleSubmit(onSubmit)}
+            >
+              <Text style={styleStore.buttonText}>
+                Salvar e Assinar Contrato
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-    marginTop: StatusBar.currentHeight || 0,
-  },
-  row: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    alignItems: "center",
-  },
-});

@@ -1,5 +1,5 @@
 import { useConnection } from "@/hooks/useConnection";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Alert,
   SafeAreaView,

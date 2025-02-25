@@ -1,6 +1,6 @@
-import { BusinessContract } from '@/types/Database';
-import { City, Contract, ContractBusinessCategories, ContractCategories, Kinship, Neighborhood, PersonContract, Street } from '@/types/Ecard';
-import { convertBrazilianDate, formatBrazilDate, formatBrazilTime } from '@/utils/String';
+import { BusinessContract, IndividualContract } from '@/types/Database';
+import { City, ContractBusinessCategories, ContractCategories, Neighborhood, Street } from '@/types/Ecard';
+import { convertBrazilianDate } from '@/utils/String';
 import axios, { AxiosInstance } from 'axios';
 
 class AppApi {
@@ -50,24 +50,8 @@ class AppApi {
     }
   }
 
-  public async fetchKinships(): Promise<Kinship[]> {
-    try {
-      const { data } = await this.client.get('/parentesco');
-
-      return data;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-
-
   public async storeBusinessContract(body: BusinessContract): Promise<number> {
     try {
-      //const categoryContractId = JSON.parse(String(body.category_id)).value;
-      //const categoryBusinessContractId = JSON.parse(String(body.category_business_id)).value;
-
-
       const payload = {
         "idContratoEmpresarial": null,
         "filial": 1,
@@ -126,11 +110,13 @@ class AppApi {
     }
   }
 
-  public async sendSignature(contractId: number, signature: string): Promise<any> {
+  public async sendSignature(contractId: number, signature: string, isCompany: boolean = false): Promise<any> {
     try {
+      const originDescription = isCompany ? 'ContratoEmpresarialEcard' : 'ContratoEcard';
+
       const { data } = await this.client.post('/insereImagem', {
         "idOrigem": contractId,
-        "dsOrigem": "ecard_contrato",
+        "dsOrigem": originDescription,
         "tipoArquivo": "image/png",
         "imagem": signature,
         "descricao": `Imagem da assinatura do contrato ${contractId}`
@@ -162,6 +148,78 @@ class AppApi {
       const { data } = await this.client.get('/categoriaContrato_pj');
 
       return data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  public async storeContract(body: IndividualContract): Promise<number> {
+    try {
+      let payload = {
+        "idContrato": null,
+        "filial": 1,
+        "preContrato": body.pre_contract ?? 'A',
+        "ativo": "S",
+        "dtVenda": convertBrazilianDate(body.sale_at),
+        "dtContrato": convertBrazilianDate(body.contract_at),
+        "empresarial": "N",
+        "idContratoEmpresarial": null,
+        "observacao": body.observation,
+        "telefone2": body.phone_2,
+        "obsTelefone1": body.observation_phone_1,
+        "obsTelefone2": body.observation_phone_2,
+        "obsCelular": body.observation_cellphone,
+        "sexo": body.gender,
+        "estadoCivil": body.civil_state,
+        "enderecoPaiMae": body.parents_address,
+        "nmPai": body.father_name,
+        "nmMae": body.mother_name,
+        "idCidadeNaturalidade": body.naturality_city,
+        "codigoConcessionaria": body.dealership_id,
+        "dtInsercao": convertBrazilianDate(body.created_at),
+        "obsCadastroRemoto": body.observation_remote,
+        "pessoa": {
+          "idPessoa": null,
+          "ativa": "S",
+          "nmPessoa": body.name,
+          "apelidoFantasia": body.person_nickname,
+          "tipo": "J",
+          "cep": body.zipcode,
+          "numero": body.number,
+          "complemento": body.complement,
+          "proximidade": null,
+          "idCidade": body.city_id,
+          "idBairro": body.neighborhood_id,
+          "idRua": body.street_id,
+          "telefone": body.phone_1,
+          "email": body.email,
+          "dtCadastro": body.created_at,
+          "observacao": body.person_observation,
+          "cpf": body.document,
+          "dtNascimento": convertBrazilianDate(body.birthday),
+          "celular": body.cellphone,
+          "sexo": body.gender,
+          "infoAdicional": null
+        },
+        "categorias": [
+          {
+            "idCategoriaContrato": body.category_id,
+            "valor": body.mensality_price,
+          }
+        ],
+        "dependentes": body.dependents && body.dependents.length > 0 ? body.dependents.map(dependent => {
+          return {
+            "nmDependente": dependent.name,
+            "idGrauParentesco": dependent.kinship_id,
+            "dtNascimento": convertBrazilianDate(dependent.birthday),
+          }
+        }) : []
+      }
+
+      const { data } = await this.client.post('/insereContratoPj', payload);
+
+      return data.idContratoEmpresarial;
     } catch (error) {
       console.log(error);
       throw error;

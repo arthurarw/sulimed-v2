@@ -15,11 +15,6 @@ export interface Neighborhood {
   idCidade: number | null;
 }
 
-export interface Kinship {
-  idGrauParentesco: number;
-  dsGrauParentesco: string;
-}
-
 export interface ContractCategories {
   idCategoriaContrato: number;
   dsCategoriaContrato: string;

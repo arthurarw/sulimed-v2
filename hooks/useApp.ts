@@ -38,15 +38,6 @@ export const useApp = () => {
     }
   }
 
-  async function fetchKinships() {
-    try {
-      return await appRepository.fetchNeighborhoods();
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-  }
-
   async function fetchCategoriesContracts(): Promise<Omit<LocalCategory[], 'max_colabs'>> {
     try {
       return await appRepository.fetchCategoriesContract();

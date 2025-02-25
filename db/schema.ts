@@ -1,7 +1,7 @@
 import * as SQLite from "expo-sqlite";
 
 export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
-  const DATABASE_VERSION = 10;
+  const DATABASE_VERSION = 12;
 
   const result = await database.getFirstAsync<{ user_version: number } | null>(
     'PRAGMA user_version'
@@ -78,6 +78,7 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
           observation_phone_2 TEXT NULL,
           observation_cellphone TEXT NULL,
           name TEXT NOT NULL,
+          birthday TEXT NULL,
           type TEXT NOT NULL,
           email TEXT NULL,
           zipcode TEXT NULL,
@@ -132,19 +133,12 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
     `);
 
   await database.execAsync(`
-      CREATE TABLE IF NOT EXISTS kinships (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
-      );
-    `);
-
-  await database.execAsync(`
       CREATE TABLE IF NOT EXISTS dependents (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         contract_id INTEGER NOT NULL,
         name TEXT NOT NULL,
         birthday TEXT NULL,
-        kinship_name TEXT NULL
+        kinship_id INTEGER NULL
       );
     `);
 
