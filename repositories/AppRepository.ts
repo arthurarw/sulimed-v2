@@ -261,8 +261,7 @@ class AppRepository {
 
     try {
       console.log('Fetching dependents...');
-      const results: LocalDependents[] = await db.getAllAsync(`SELECT name, birthday, kinship_id FROM dependents WHERE contract_id = ${contractId}`);
-
+      const results: LocalDependents[] = await db.getAllAsync(`SELECT id, name, birthday, kinship_id FROM dependents WHERE contract_id = ${contractId}`);
 
       if (!results || results.length === 0) {
         return [];
@@ -639,79 +638,7 @@ class AppRepository {
   }
 
   public fetchKinships() {
-    const data = [
-      {
-        "idGrauParentesco": 1,
-        "dsGrauParentesco": "FILHO(A)"
-      },
-      {
-        "idGrauParentesco": 2,
-        "dsGrauParentesco": "ESPOSO(A)"
-      },
-      {
-        "idGrauParentesco": 3,
-        "dsGrauParentesco": "AVÔ(Ó)"
-      },
-      {
-        "idGrauParentesco": 4,
-        "dsGrauParentesco": "MÃE / PAI"
-      },
-      {
-        "idGrauParentesco": 5,
-        "dsGrauParentesco": "TIO(A)"
-      },
-      {
-        "idGrauParentesco": 6,
-        "dsGrauParentesco": "SOGRO(A)"
-      },
-      {
-        "idGrauParentesco": 7,
-        "dsGrauParentesco": "OUTROS"
-      },
-      {
-        "idGrauParentesco": 8,
-        "dsGrauParentesco": "IRMÃ(O)"
-      },
-      {
-        "idGrauParentesco": 9,
-        "dsGrauParentesco": "GENRO/NORA"
-      },
-      {
-        "idGrauParentesco": 10,
-        "dsGrauParentesco": "ENTEADO(A)"
-      },
-      {
-        "idGrauParentesco": 11,
-        "dsGrauParentesco": "NETO(A)"
-      },
-      {
-        "idGrauParentesco": 12,
-        "dsGrauParentesco": "PRIMO (A)"
-      },
-      {
-        "idGrauParentesco": 13,
-        "dsGrauParentesco": "SOBRINHO (A)"
-      },
-      {
-        "idGrauParentesco": 14,
-        "dsGrauParentesco": "NAMORADO (A)"
-      },
-      {
-        "idGrauParentesco": 15,
-        "dsGrauParentesco": "PADASTRO / MADASTRA"
-      },
-      {
-        "idGrauParentesco": 17,
-        "dsGrauParentesco": "CUNHADO (A)"
-      }
-    ];
 
-    return data.map((kinship) => {
-      return {
-        id: kinship.idGrauParentesco,
-        label: kinship.dsGrauParentesco
-      }
-    })
   }
 
   public async storeDependents(contractId: number, name: string, birthday: string, kinshipId: number) {
@@ -748,14 +675,13 @@ class AppRepository {
     });
 
     const statement = await db.prepareAsync(
-      "UPDATE contracts SET payment_method = $payment_method, bankslip_installments = $bankslip_installments, membership_fee = $membership_fee, account_holder_name = $account_holder_name, account_holder_type = $account_holder_type, account_document = $account_document, account_document_2 = $account_document_2, installation_partner = $installation_partner, dealership_id = $dealership_id, unity_consumer = $unity_consumer, due_account_date = $due_account_date WHERE id = $id",
+      "UPDATE contracts SET payment_method = $payment_method, membership_fee = $membership_fee, account_holder_name = $account_holder_name, account_holder_type = $account_holder_type, account_document = $account_document, account_document_2 = $account_document_2, installation_partner = $installation_partner, dealership_id = $dealership_id, unity_consumer = $unity_consumer, due_account_date = $due_account_date WHERE id = $id",
     );
 
     try {
       await statement.executeAsync({
         $id: contractId,
         $payment_method: data.payment_method ?? '',
-        $bankslip_installments: data.bankslip_installments ?? '',
         $membership_fee: data.membership_fee ?? '',
         $account_holder_name: data.account_holder_name ?? '',
         $account_holder_type: data.account_holder_type ?? '',

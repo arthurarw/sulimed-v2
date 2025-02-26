@@ -114,9 +114,6 @@ export default function AppLayout() {
               name="contracts/dependents"
               options={{
                 title: "Adicionar Dependente",
-                drawerItemStyle: {
-                  display: "none",
-                },
               }}
             />
             <Drawer.Screen

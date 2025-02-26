@@ -1,9 +1,8 @@
-import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
 import { styleStore } from "@/styles/styles";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Drawer from "expo-router/drawer";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   SafeAreaView,
@@ -13,7 +12,6 @@ import {
   View,
   Alert,
   TouchableOpacity,
-  ActivityIndicator,
   ScrollView,
   TextInput,
 } from "react-native";
@@ -22,8 +20,6 @@ import { MaskedTextInput } from "react-native-mask-text";
 
 export default function Screen() {
   const { contractId } = useLocalSearchParams();
-  const { isConnected } = useConnection();
-  const [isLoading, setIsLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("");
 
   const paymentMethods = [
@@ -46,67 +42,13 @@ export default function Screen() {
     },
   ];
 
-  const installments = [
-    {
-      id: 1,
-      label: "1x",
-    },
-    {
-      id: 2,
-      label: "2x",
-    },
-    {
-      id: 3,
-      label: "3x",
-    },
-    {
-      id: 4,
-      label: "4x",
-    },
-    {
-      id: 5,
-      label: "5x",
-    },
-    {
-      id: 6,
-      label: "6x",
-    },
-    {
-      id: 7,
-      label: "7x",
-    },
-    {
-      id: 8,
-      label: "8x",
-    },
-    {
-      id: 9,
-      label: "9x",
-    },
-    {
-      id: 10,
-      label: "10x",
-    },
-    {
-      id: 11,
-      label: "11x",
-    },
-    {
-      id: 12,
-      label: "12x",
-    },
-  ];
-
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
-    getValues,
   } = useForm({
     defaultValues: {
       payment_method: "",
-      bankslip_installments: "",
       membership_fee: "",
       account_holder_name: "",
       account_holder_type: "F",
@@ -184,36 +126,6 @@ export default function Screen() {
 
         {paymentMethod === "CC" && (
           <>
-            <Controller
-              control={control}
-              rules={{ required: "A Quantidade de Parcelas é obrigatório." }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Dropdown
-                  data={installments.map(
-                    (item: { id: number; label: string }) => ({
-                      label: item.label,
-                      value: item.id,
-                    }),
-                  )}
-                  maxHeight={200}
-                  placeholder="Selecione a Quantidade de Parcelas"
-                  value={value}
-                  style={styleStore.input}
-                  onChange={(item) => {
-                    onChange(item.value);
-                  }}
-                  onBlur={onBlur}
-                  labelField={"label"}
-                  valueField={"value"}
-                />
-              )}
-              name="bankslip_installments"
-            />
-            {errors.bankslip_installments && (
-              <Text style={styleStore.errorText}>
-                {errors.bankslip_installments.message}
-              </Text>
-            )}
             <Controller
               control={control}
               rules={{ required: "O campo é obrigatório." }}
