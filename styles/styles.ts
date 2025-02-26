@@ -56,6 +56,12 @@ export const styleStore = StyleSheet.create({
     borderRadius: 8,
     textTransform: "uppercase",
   },
+  buttonDisabled: {
+    backgroundColor: "#aaa",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
   buttonText: {
     color: "#fff",
     fontSize: 16,
@@ -68,6 +74,14 @@ export const styleStore = StyleSheet.create({
     gap: 15,
     justifyContent: "space-between",
     width: "100%",
+  },
+  btnContainerPayment: {
+    flexDirection: "column",
+    gap: 15,
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 20,
+    marginTop: 20
   },
   errorText: {
     color: "#c0392b",

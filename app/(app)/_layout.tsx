@@ -119,6 +119,15 @@ export default function AppLayout() {
                 },
               }}
             />
+            <Drawer.Screen
+              name="contracts/payment"
+              options={{
+                title: "Vincular Pagamento",
+                drawerItemStyle: {
+                  display: "none",
+                },
+              }}
+            />
           </Drawer>
         </GestureHandlerRootView>
       </ThemeProvider>

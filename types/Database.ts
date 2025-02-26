@@ -204,4 +204,6 @@ export interface IndividualContract {
   installation_partner: string | null;
   birthday: string | null;
   dependents: LocalDependents[] | null;
+  payment_method: string | null;
+  due_account_date: string | null;
 }

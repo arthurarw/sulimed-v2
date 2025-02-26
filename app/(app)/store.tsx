@@ -44,21 +44,6 @@ export default function Screen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCompany, setIsCompany] = useState(false);
 
-  const dealerships = [
-    {
-      id: 31,
-      label: "RGE",
-    },
-    {
-      id: 98,
-      label: "RGE-SUL",
-    },
-    {
-      id: 26,
-      label: "CELESC",
-    },
-  ];
-
   const civilState = [
     {
       id: 0,
@@ -266,34 +251,6 @@ export default function Screen() {
           {errors.mensality_price && (
             <Text style={styleStore.errorText}>
               {errors.mensality_price.message}
-            </Text>
-          )}
-
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Dropdown
-                data={dealerships.map((item) => ({
-                  label: item.label,
-                  value: item.id,
-                }))}
-                maxHeight={200}
-                placeholder="Selecione a Concessionária"
-                value={value}
-                style={styleStore.input}
-                onChange={(item) => {
-                  onChange(item.value);
-                }}
-                onBlur={onBlur}
-                labelField={"label"}
-                valueField={"value"}
-              />
-            )}
-            name="dealership_id"
-          />
-          {errors.dealership_id && (
-            <Text style={styleStore.errorText}>
-              {errors.dealership_id.message}
             </Text>
           )}
 

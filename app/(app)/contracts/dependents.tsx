@@ -22,13 +22,12 @@ import { MaskedTextInput } from "react-native-mask-text";
 
 export default function Screen() {
   const { contractId } = useLocalSearchParams();
-  const { isConnected } = useConnection();
   const [isLoading, setIsLoading] = useState(true);
   const [kinships, setKinships]: any = useState([]);
 
   const handleFinish = () => {
     router.navigate({
-      pathname: "/contracts/signature",
+      pathname: "/contracts/payment",
       params: { contractId },
     });
   };
@@ -193,9 +192,7 @@ export default function Screen() {
               style={{ ...styleStore.button, marginTop: 50 }}
               onPress={handleFinish}
             >
-              <Text style={styleStore.buttonText}>
-                Salvar e Assinar Contrato
-              </Text>
+              <Text style={styleStore.buttonText}>Salvar e Continuar</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

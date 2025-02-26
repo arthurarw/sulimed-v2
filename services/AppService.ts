@@ -157,7 +157,8 @@ class AppApi {
 
   public async storeContract(body: IndividualContract): Promise<number> {
     try {
-      const isCompany = body.person_type === 'J';
+      const isCompany = body.person_type === "J";
+      const isCreditCard = body.payment_method === "CC";
 
       let payload = {
         "idContrato": null,
@@ -179,9 +180,23 @@ class AppApi {
         "nmPai": body.father_name,
         "nmMae": body.mother_name,
         "idCidadeNaturalidade": body.naturality_city,
-        "codigoConcessionaria": body.dealership_id,
         "dtInsercao": formatBrazilTime(),
         "obsCadastroRemoto": body.observation_remote,
+        "boleto": body.payment_method ?? null,
+        "boletoParcelas": isCreditCard ? body.bankslip_installments : null,
+        "valorTaxaAdesao": isCreditCard ? body.membership_fee : null,
+        "boletoParcelaGerada": isCreditCard ? body.bankslip_installments_generated ?? "N" : null,
+        "mensalista": isCreditCard ? "N" : "S",
+        "codigoConcessionaria": isCreditCard ? null : body.dealership_id,
+        "unidadeConsumidora": isCreditCard ? null : body.unity_consumer,
+        "titularDaConta": isCreditCard ? null : body.account_holder_name,
+        "tipoPessoaTitular": isCreditCard ? null : "F",
+        "cpfCnpjTitularConta": isCreditCard ? null : body.account_document,
+        "rgIeTitularConta": isCreditCard ? null : body.account_document_2,
+        "parceiroNegocioInstalacao": isCreditCard ? null : body.installation_partner,
+        "dtVencimentoConta": isCreditCard ? null : convertBrazilianDate(body.due_account_date),
+        "acaoCadastro": isCreditCard ? null : "I",
+        "acaoEnviada": isCreditCard ? null : "N",
         "pessoa": {
           "idPessoa": null,
           "ativa": "S",

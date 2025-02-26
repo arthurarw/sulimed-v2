@@ -740,6 +740,38 @@ class AppRepository {
       await statement.finalizeAsync();
     }
   }
+
+
+  public async setPaymentMethod(contractId: number, data: Omit<IndividualContract, "id">) {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+      useNewConnection: true
+    });
+
+    const statement = await db.prepareAsync(
+      "UPDATE contracts SET payment_method = $payment_method, bankslip_installments = $bankslip_installments, membership_fee = $membership_fee, account_holder_name = $account_holder_name, account_holder_type = $account_holder_type, account_document = $account_document, account_document_2 = $account_document_2, installation_partner = $installation_partner, dealership_id = $dealership_id, unity_consumer = $unity_consumer, due_account_date = $due_account_date WHERE id = $id",
+    );
+
+    try {
+      await statement.executeAsync({
+        $id: contractId,
+        $payment_method: data.payment_method ?? '',
+        $bankslip_installments: data.bankslip_installments ?? '',
+        $membership_fee: data.membership_fee ?? '',
+        $account_holder_name: data.account_holder_name ?? '',
+        $account_holder_type: data.account_holder_type ?? '',
+        $account_document: data.account_document ?? '',
+        $account_document_2: data.account_document_2 ?? '',
+        $installation_partner: data.installation_partner ?? '',
+        $dealership_id: data.dealership_id ?? '',
+        $unity_consumer: data.unity_consumer ?? '',
+        $due_account_date: data.due_account_date ?? '',
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      await statement.finalizeAsync();
+    }
+  }
 }
 
 export const appRepository = new AppRepository();

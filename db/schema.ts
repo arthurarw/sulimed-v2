@@ -1,7 +1,7 @@
 import * as SQLite from "expo-sqlite";
 
 export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
-  const DATABASE_VERSION = 12;
+  const DATABASE_VERSION = 13;
 
   const result = await database.getFirstAsync<{ user_version: number } | null>(
     'PRAGMA user_version'
@@ -112,6 +112,7 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
           action_registration_send TEXT NULL DEFAULT 'N',
           installation_partner TEXT NULL,
           payment_method TEXT NULL DEFAULT 'N',
+          due_account_date TEXT NULL,
           phone TEXT NULL,
           telephone TEXT NULL,
           sync BOOLEAN NOT NULL DEFAULT 0,
