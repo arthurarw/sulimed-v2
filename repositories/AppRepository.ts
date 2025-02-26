@@ -80,7 +80,7 @@ class AppRepository {
         $name: data.name ?? '',
         $document: data.document ?? '',
         $document_2: data.document_2 ?? '',
-        $type: data.person_type ?? 'J',
+        $type: data.person_type ?? 'F',
         $email: data.email ?? '',
         $zipcode: data.zipcode ?? '',
         $street_id: data.street_id ?? '',
@@ -237,7 +237,7 @@ class AppRepository {
           }
 
           if (contract.signature) {
-            await AppService.sendSignature(contractId, contract.signature, true);
+            await AppService.sendSignature(contractId, contract.signature);
           }
 
           await this.setContractSyncConcluded(contract.id);

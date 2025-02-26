@@ -73,6 +73,12 @@ export default function Screen() {
   };
 
   const handleSyncTables = async () => {
+    const hasNetwork = await isConnected();
+    if (!hasNetwork) {
+      Alert.alert("Erro", "Ooops!! Sem conexão com a internet.");
+      return;
+    }
+
     setFetchingCities(false);
     setFetchingStreets(false);
     setFetchingNeighborhoods(false);

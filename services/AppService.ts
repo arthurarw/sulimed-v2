@@ -86,6 +86,7 @@ class AppApi {
           "dtCadastro": body.created_at,
           "observacao": body.person_observation,
           "cnpj": body.document,
+          "inscricaoEstadual": body.document_2,
           "dtFundacao": convertBrazilianDate(body.company_fundation_at),
           "celular": body.cellphone,
           "infoAdicional": null
@@ -156,6 +157,8 @@ class AppApi {
 
   public async storeContract(body: IndividualContract): Promise<number> {
     try {
+      const isCompany = body.person_type === 'J';
+
       let payload = {
         "idContrato": null,
         "filial": 1,
@@ -184,7 +187,7 @@ class AppApi {
           "ativa": "S",
           "nmPessoa": body.name,
           "apelidoFantasia": body.person_nickname,
-          "tipo": "F",
+          "tipo": body.person_type,
           "cep": body.zipcode,
           "numero": body.number,
           "complemento": body.complement,
@@ -196,8 +199,12 @@ class AppApi {
           "email": body.email,
           "dtCadastro": body.created_at,
           "observacao": body.person_observation,
-          "cpf": body.document,
-          "dtNascimento": convertBrazilianDate(body.birthday),
+          "cpf": !isCompany ? body.document : null,
+          "cnpj": isCompany ? body.document : null,
+          "inscricaoEstadual": isCompany ? body.document_2 : null,
+          "dtFundacao": isCompany ? convertBrazilianDate(body.company_fundation_at) : null,
+          "dtNascimento": !isCompany ? convertBrazilianDate(body.birthday) : null,
+          "rg": !isCompany ? body.document_2 : null,
           "celular": body.cellphone,
           "sexo": body.gender,
           "infoAdicional": null

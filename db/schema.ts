@@ -111,6 +111,7 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
           action_registration TEXT NULL DEFAULT 'I',
           action_registration_send TEXT NULL DEFAULT 'N',
           installation_partner TEXT NULL,
+          payment_method TEXT NULL DEFAULT 'N',
           phone TEXT NULL,
           telephone TEXT NULL,
           sync BOOLEAN NOT NULL DEFAULT 0,

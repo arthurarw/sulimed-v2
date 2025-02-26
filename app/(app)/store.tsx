@@ -16,19 +16,13 @@ import { Dropdown } from "react-native-element-dropdown";
 import {
   ActivityIndicator,
   Alert,
-  Button,
   SafeAreaView,
   ScrollView,
-  StatusBar,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import SignatureScreen, {
-  SignatureViewRef,
-} from "react-native-signature-canvas";
 import { MaskedTextInput } from "react-native-mask-text";
 import { appRepository } from "@/repositories/AppRepository";
 
@@ -48,6 +42,7 @@ export default function Screen() {
   const [streets, setStreets] = useState<LocalStreet[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<LocalNeighborhood[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCompany, setIsCompany] = useState(false);
 
   const dealerships = [
     {
@@ -94,6 +89,17 @@ export default function Screen() {
     },
   ];
 
+  const personTypes = [
+    {
+      id: "F",
+      label: "Pessoa Física",
+    },
+    {
+      id: "J",
+      label: "Pessoa Jurídica",
+    },
+  ];
+
   const {
     control,
     handleSubmit,
@@ -106,7 +112,7 @@ export default function Screen() {
       mensality_price: "",
       name: "",
       document: "",
-      document2: "",
+      document_2: "",
       email: "",
       zipcode: "",
       city_id: "",
@@ -114,7 +120,7 @@ export default function Screen() {
       neighborhood_id: "",
       number: "",
       person_nickname: "",
-      person_type: "F",
+      person_type: "",
       colab_id: authState ? authState.userId : "",
       phone_1: "",
       phone_2: "",
@@ -133,6 +139,7 @@ export default function Screen() {
       dealership_id: "",
       gender: "",
       civil_state: "",
+      company_fundation_at: "",
     },
   });
 
@@ -356,16 +363,49 @@ export default function Screen() {
 
           <Controller
             control={control}
+            rules={{ required: "O tipo de pessoa é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Dropdown
+                data={personTypes.map((item) => ({
+                  label: item.label,
+                  value: item.id,
+                }))}
+                maxHeight={200}
+                placeholder="Tipo de Pessoa"
+                value={value}
+                style={styleStore.input}
+                onChange={(item) => {
+                  onChange(item.value);
+                  setIsCompany(item.value === "J");
+                  setValue("document", "");
+                }}
+                onBlur={onBlur}
+                labelField={"label"}
+                valueField={"value"}
+              />
+            )}
+            name="person_type"
+          />
+          {errors.person_type && (
+            <Text style={styleStore.errorText}>
+              {errors.person_type.message}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
             rules={{
-              required: "O CPF é obrigatório",
-              pattern: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
+              required: "O documento é obrigatório.",
+              pattern: !isCompany
+                ? /^\d{3}\.\d{3}\.\d{3}-\d{2}$/
+                : /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/,
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <MaskedTextInput
                 style={styleStore.input}
-                placeholder="CPF"
+                placeholder={isCompany ? "CNPJ" : "CPF"}
                 value={value}
-                mask="999.999.999-99"
+                mask={isCompany ? "99.999.999/9999-99" : "999.999.999-99"}
                 onChangeText={onChange}
                 keyboardType="phone-pad"
                 onBlur={onBlur}
@@ -375,6 +415,28 @@ export default function Screen() {
           />
           {errors.document && (
             <Text style={styleStore.errorText}>{errors.document.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: "O campo é obrigatório.",
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder={isCompany ? "I.E" : "RG"}
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="document_2"
+          />
+          {errors.document_2 && (
+            <Text style={styleStore.errorText}>
+              {errors.document_2.message}
+            </Text>
           )}
 
           <Controller
@@ -405,38 +467,82 @@ export default function Screen() {
             </Text>
           )}
 
-          <Controller
-            control={control}
-            rules={{
-              required: "A data de nascimento é obrigatória.",
-              validate: (value) => {
-                const date = value.split("/");
-                if (date.length !== 3) {
-                  return false;
-                }
-                const day = parseInt(date[0]);
-                const month = parseInt(date[1]);
-                const year = parseInt(date[2]);
-                return (
-                  day > 0 && day < 32 && month > 0 && month < 13 && year > 0
-                );
-              },
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <MaskedTextInput
-                style={styleStore.input}
-                placeholder="Data de Nascimento"
-                value={value}
-                mask="99/99/9999"
-                onChangeText={onChange}
-                keyboardType="phone-pad"
-                onBlur={onBlur}
+          {isCompany ? (
+            <>
+              <Controller
+                control={control}
+                rules={{
+                  required: "A data de fundação é obrigatória.",
+                  validate: (value) => {
+                    const date = value.split("/");
+                    if (date.length !== 3) {
+                      return false;
+                    }
+                    const day = parseInt(date[0]);
+                    const month = parseInt(date[1]);
+                    const year = parseInt(date[2]);
+                    return (
+                      day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                    );
+                  },
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <MaskedTextInput
+                    style={styleStore.input}
+                    placeholder="Data de Fundação"
+                    value={value}
+                    mask="99/99/9999"
+                    onChangeText={onChange}
+                    keyboardType="phone-pad"
+                    onBlur={onBlur}
+                  />
+                )}
+                name="company_fundation_at"
               />
-            )}
-            name="birthday"
-          />
-          {errors.birthday && (
-            <Text style={styleStore.errorText}>{errors.birthday.message}</Text>
+              {errors.company_fundation_at && (
+                <Text style={styleStore.errorText}>
+                  {errors.company_fundation_at.message}
+                </Text>
+              )}
+            </>
+          ) : (
+            <>
+              <Controller
+                control={control}
+                rules={{
+                  required: "A data de nascimento é obrigatória.",
+                  validate: (value) => {
+                    const date = value.split("/");
+                    if (date.length !== 3) {
+                      return false;
+                    }
+                    const day = parseInt(date[0]);
+                    const month = parseInt(date[1]);
+                    const year = parseInt(date[2]);
+                    return (
+                      day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                    );
+                  },
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <MaskedTextInput
+                    style={styleStore.input}
+                    placeholder="Data de Nascimento"
+                    value={value}
+                    mask="99/99/9999"
+                    onChangeText={onChange}
+                    keyboardType="phone-pad"
+                    onBlur={onBlur}
+                  />
+                )}
+                name="birthday"
+              />
+              {errors.birthday && (
+                <Text style={styleStore.errorText}>
+                  {errors.birthday.message}
+                </Text>
+              )}
+            </>
           )}
 
           <Controller
