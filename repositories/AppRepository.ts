@@ -582,39 +582,61 @@ class AppRepository {
     }
   }
 
-  public async syncTablesToServer() {
+  public async syncTablesToServer(id: string) {
     const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
       useNewConnection: true
     });
 
     try {
-      console.log('Dropping tables...');
-      await db.execAsync(`DROP TABLE IF EXISTS cities;`);
-      await db.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
-      await db.execAsync(`DROP TABLE IF EXISTS streets;`);
-      await db.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
-      await db.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
-
-      console.log('Creating tables...');
-      await db.execAsync(`
+      if (id === '1') {
+        console.log('Syncing cities...');
+        await db.execAsync(`DROP TABLE IF EXISTS cities;`);
+        await db.execAsync(`
         CREATE TABLE IF NOT EXISTS cities (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL
         );
       `);
-      await db.execAsync(`
-        CREATE TABLE IF NOT EXISTS neighborhoods (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL
-        );
-      `);
-      await db.execAsync(`
+      }
+
+      if (id === '2') {
+        console.log('Syncing streets...');
+        await db.execAsync(`DROP TABLE IF EXISTS streets;`);
+        await db.execAsync(`
         CREATE TABLE IF NOT EXISTS streets (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL
         );
       `);
-      await db.execAsync(`
+      }
+
+      if (id === '3') {
+        console.log('Syncing neighborhoods...');
+        await db.execAsync(`DROP TABLE IF EXISTS neighborhoods;`);
+        await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS neighborhoods (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL
+        );
+      `);
+      }
+
+      if (id === '4') {
+        console.log('Syncing contract categories...');
+        await db.execAsync(`DROP TABLE IF EXISTS contract_categories;`);
+        await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS contract_categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          price NUMERIC NOT NULL,
+          description TEXT NOT NULL
+        );
+      `);
+      }
+
+      if (id === '5') {
+        console.log('Syncing business contract categories...');
+        await db.execAsync(`DROP TABLE IF EXISTS contract_business_categories;`);
+        await db.execAsync(`
         CREATE TABLE IF NOT EXISTS contract_business_categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           price NUMERIC NOT NULL,
@@ -622,14 +644,7 @@ class AppRepository {
           max_colabs INTEGER NULL DEFAULT 0
         );
       `);
-
-      await db.execAsync(`
-        CREATE TABLE IF NOT EXISTS contract_categories (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          price NUMERIC NOT NULL,
-          description TEXT NOT NULL
-        );
-      `);
+      }
 
       return;
     } catch (error) {

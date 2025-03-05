@@ -114,12 +114,24 @@ export default function AppLayout() {
               name="contracts/dependents"
               options={{
                 title: "Adicionar Dependente",
+                drawerItemStyle: {
+                  display: "none",
+                },
               }}
             />
             <Drawer.Screen
               name="contracts/payment"
               options={{
                 title: "Vincular Pagamento",
+                drawerItemStyle: {
+                  display: "none",
+                },
+              }}
+            />
+            <Drawer.Screen
+              name="sync"
+              options={{
+                title: "Sincronizar Tables",
                 drawerItemStyle: {
                   display: "none",
                 },

@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -73,114 +74,23 @@ export default function Screen() {
   };
 
   const handleSyncTables = async () => {
-    const hasNetwork = await isConnected();
-    if (!hasNetwork) {
-      Alert.alert("Erro", "Ooops!! Sem conexão com a internet.");
-      return;
-    }
-
-    setFetchingCities(false);
-    setFetchingStreets(false);
-    setFetchingNeighborhoods(false);
-    setFetchingCategoriesBusiness(false);
-    setFetchingCategories(false);
-    setRefreshing(true);
-
-    console.log("Syncing tables...");
-    await appRepository.syncTablesToServer();
-
-    await appRepository
-      .fetchCities()
-      .then(() => {
-        setFetchingCities(true);
-      })
-      .catch((error) => {
-        console.error(error);
-        Alert.alert("Erro!", error);
-      });
-
-    await appRepository
-      .fetchStreets()
-      .then(() => {
-        setFetchingStreets(true);
-      })
-      .catch((error) => {
-        console.error(error);
-        Alert.alert("Erro!", error);
-      });
-
-    await appRepository
-      .fetchNeighborhoods()
-      .then(() => {
-        setFetchingNeighborhoods(true);
-      })
-      .catch((error) => {
-        console.error(error);
-        Alert.alert("Erro!", error);
-      });
-
-    await appRepository
-      .fetchCategoriesBusinessContracts()
-      .then(() => {
-        setFetchingCategoriesBusiness(true);
-      })
-      .catch((error) => {
-        console.error(error);
-        Alert.alert("Erro!", error);
-      });
-
-    await appRepository
-      .fetchCategoriesContract()
-      .then(() => {
-        setFetchingCategories(true);
-      })
-      .catch((error) => {
-        console.error(error);
-        Alert.alert("Erro!", error);
-      });
-
-    setRefreshing(false);
-    Alert.alert("Sucesso!", "Tabelas sincronizadas com sucesso.");
+    router.navigate({ pathname: "sync" });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {refreshing ? (
-        <>
-          <Text>
-            {!fetchingCities ? "Sincronizando Cidades..." : "Cidades OK"}
-          </Text>
-          <Text>{!fetchingStreets ? "Sincronizando Ruas..." : "Ruas OK"}</Text>
-          <Text>
-            {!fetchingNeighborhoods ? "Sincronizando Bairros..." : "Bairros OK"}
-          </Text>
-          <Text>
-            {!fetchingCategoriesBusiness
-              ? "Sincronizando Categorias Empresariais..."
-              : "Categorias Empresariais OK"}
-          </Text>
-          <Text>
-            {!fetchingCategories
-              ? "Sincronizando Categorias..."
-              : "Categorias OK"}
-          </Text>
-        </>
-      ) : (
-        <>
-          <TouchableOpacity style={styles.button} onPress={handleSyncTables}>
-            <Text style={styles.buttonText}>Sincronizar Tabelas</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSyncContractsClick}
-          >
-            <Text style={styles.buttonText}>Sincronizar Contratos</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonError} onPress={handleLogout}>
-            <Text style={styles.buttonText}>Logout</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      <TouchableOpacity style={styles.button} onPress={handleSyncTables}>
+        <Text style={styles.buttonText}>Sincronizar Tabelas</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleSyncContractsClick}
+      >
+        <Text style={styles.buttonText}>Sincronizar Contratos</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.buttonError} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }

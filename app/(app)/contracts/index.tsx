@@ -60,7 +60,6 @@ export default function Screen() {
   };
 
   useEffect(() => {
-    //insertTest();
     fetchContracts();
   }, []);
 
