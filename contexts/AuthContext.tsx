@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
+import axios from "axios";
 
 interface AuthProps {
   authState?: { userId: string | null; authenticated: boolean | null };
@@ -55,15 +56,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
   const login = async (email: string, password: string) => {
     try {
-      console.log(email, password);
+      const { data } = await axios.post(
+        "https://www3.sulimed.com.br/api/login",
+        {
+          email,
+          password,
+        },
+      );
 
-      setAuthState({ userId: "1", authenticated: true });
+      if (!data.user.employeeId) {
+        return { userId: null, authenticated: false };
+      }
 
-      await SecureStore.setItemAsync(TOKEN_KEY, "1");
+      setAuthState({ userId: data.user.employeeId, authenticated: true });
 
-      return { userId: "1", authenticated: true };
+      await SecureStore.setItemAsync(
+        TOKEN_KEY,
+        data.user.employeeId.toString(),
+      );
+
+      return { userId: data.user.employeeId, authenticated: true };
     } catch (error) {
-      console.error(error);
       return { userId: null, authenticated: false };
     }
   };
