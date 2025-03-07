@@ -79,9 +79,6 @@ export default function Screen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={handleSyncTables}>
-        <Text style={styles.buttonText}>Sincronizar Tabelas</Text>
-      </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
         onPress={handleSyncContractsClick}

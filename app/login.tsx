@@ -13,6 +13,7 @@ import {
   Alert,
 } from "react-native";
 import * as EmailValidator from "email-validator";
+import { appRepository } from "@/repositories/AppRepository";
 
 export default function Screen() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,12 @@ export default function Screen() {
 
     const result = await onLogin(email, password);
     if (result && result.authenticated) {
+      const isSync = await appRepository.hasCities();
+      if (!isSync) {
+        router.replace("/sync");
+        return;
+      }
+
       router.replace("/");
       Alert.alert("Sucesso", "Login efetuado com sucesso");
       return;
@@ -55,6 +62,7 @@ export default function Screen() {
           onChangeText={(value: string) => setEmail(value)}
           placeholder="Digite seu e-mail"
           keyboardType="email-address"
+          autoCapitalize="none"
         />
         <Text>Senha</Text>
         <TextInput
@@ -62,6 +70,7 @@ export default function Screen() {
           placeholder="Digite sua senha"
           onChangeText={(value: string) => setPassword(value)}
           secureTextEntry
+          autoCapitalize="none"
         />
         <TouchableOpacity style={styleStore.button} onPress={login}>
           <Text style={styleStore.buttonText}>Entrar</Text>

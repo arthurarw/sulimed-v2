@@ -131,10 +131,10 @@ export default function AppLayout() {
             <Drawer.Screen
               name="sync"
               options={{
-                title: "Sincronizar Tables",
-                drawerItemStyle: {
-                  display: "none",
-                },
+                title: "Sincronizar Tabelas",
+                drawerIcon: ({ color, size }) => (
+                  <Ionicons name="sync-circle" size={size} color={color} />
+                ),
               }}
             />
           </Drawer>

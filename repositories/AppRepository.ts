@@ -321,6 +321,25 @@ class AppRepository {
     }
   }
 
+  public async hasCities() {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+      useNewConnection: true
+    });
+
+    try {
+      const query = "SELECT id, name FROM cities ORDER BY name ASC";
+      const results: LocalCity[] = await db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async fetchCategoriesBusinessContracts() {
     const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
       useNewConnection: true

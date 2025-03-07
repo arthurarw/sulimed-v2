@@ -1,10 +1,8 @@
-import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
 import { styleStore } from "@/styles/styles";
-import { convertBrazilianDate } from "@/utils/String";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Drawer from "expo-router/drawer";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   SafeAreaView,

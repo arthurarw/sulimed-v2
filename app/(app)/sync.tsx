@@ -2,6 +2,7 @@ import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -12,6 +13,7 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
+
 export default function Screen() {
   const [refreshing, setRefreshing] = useState(false);
   const [items, setItems] = useState([
@@ -29,6 +31,7 @@ export default function Screen() {
   const [fetchingCategories, setFetchingCategories] = useState(false);
   const [fetchingCategoriesBusiness, setFetchingCategoriesBusiness] =
     useState(false);
+  const [connectionServer, setConnectionServer] = useState(false);
 
   const toggleItem = (id: string) => {
     setItems((prevItems) =>
@@ -49,23 +52,33 @@ export default function Screen() {
     </TouchableOpacity>
   );
 
-  const disableButton = () => {
-    return items.filter((item) => item.checked).length === 0;
-  };
-
   const handleSyncTables = async () => {
+    setRefreshing(true);
+
     const hasNetwork = await isConnected();
     if (!hasNetwork) {
       Alert.alert("Erro", "Ooops!! Sem conexão com a internet.");
       return;
     }
 
+    await axios
+      .get("http://179.108.169.90:8088/ecard/categoriaContrato")
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        Alert.alert("Erro", "Ooops!! Sem conexão com o servidor.");
+        setConnectionServer(false);
+        setRefreshing(false);
+        return false;
+      });
+    setConnectionServer(true);
+
     setFetchingCities(false);
     setFetchingStreets(false);
     setFetchingNeighborhoods(false);
     setFetchingCategoriesBusiness(false);
     setFetchingCategories(false);
-    setRefreshing(true);
 
     console.log("Syncing tables...");
     for await (const item of items) {
@@ -164,33 +177,43 @@ export default function Screen() {
 
       {refreshing && (
         <>
+          <Text>Sincronizando....</Text>
+          <Text>{connectionServer && "Conectado ao servidor..."}</Text>
+          <Text>{fetchingCities && "Cidades OK"}</Text>
+          <Text>{fetchingStreets && "Ruas OK"}</Text>
+          <Text>{fetchingNeighborhoods && "Bairros OK"}</Text>
           <Text>
-            {!fetchingCities ? "Sincronizando Cidades..." : "Cidades OK"}
+            {fetchingCategoriesBusiness && "Categorias Empresariais OK"}
           </Text>
-          <Text>{!fetchingStreets ? "Sincronizando Ruas..." : "Ruas OK"}</Text>
-          <Text>
-            {!fetchingNeighborhoods ? "Sincronizando Bairros..." : "Bairros OK"}
-          </Text>
-          <Text>
-            {!fetchingCategoriesBusiness
-              ? "Sincronizando Categorias Empresariais..."
-              : "Categorias Empresariais OK"}
-          </Text>
-          <Text>
-            {!fetchingCategories
-              ? "Sincronizando Categorias..."
-              : "Categorias OK"}
-          </Text>
+          <Text>{fetchingCategories && "Categorias OK"}</Text>
         </>
       )}
 
-      <TouchableOpacity
-        style={[styles.button, disableButton() && { backgroundColor: "gray" }]}
-        disabled={disableButton()}
-        onPress={handleSyncTables}
-      >
-        <Text style={styles.buttonText}>Sincronizar Tabelas</Text>
-      </TouchableOpacity>
+      {refreshing ? (
+        <>
+          <TouchableOpacity
+            style={{ ...styles.button, backgroundColor: "gray" }}
+            disabled={true}
+          >
+            <Text style={styles.buttonText}>Sincronizar Tabelas</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              items.filter((item) => item.checked).length === 0 && {
+                backgroundColor: "gray",
+              },
+            ]}
+            disabled={items.filter((item) => item.checked).length === 0}
+            onPress={handleSyncTables}
+          >
+            <Text style={styles.buttonText}>Sincronizar Tabelas</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </SafeAreaView>
   );
 }
