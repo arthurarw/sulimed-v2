@@ -732,6 +732,20 @@ class AppRepository {
       await statement.finalizeAsync();
     }
   }
+
+  public async dropContractTables() {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+      useNewConnection: true
+    });
+
+    try {
+      await db.execAsync(`DROP TABLE IF EXISTS contracts;`);
+      await db.execAsync(`DROP TABLE IF EXISTS dependents;`);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const appRepository = new AppRepository();

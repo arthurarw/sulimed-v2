@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import { appRepository } from "@/repositories/AppRepository";
 
 interface AuthProps {
   authState?: { userId: string | null; authenticated: boolean | null };
@@ -82,6 +83,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   };
 
   const logout = async () => {
+    await appRepository.dropContractTables();
+
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({ userId: null, authenticated: false });
   };

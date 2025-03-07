@@ -1,5 +1,5 @@
 import { useConnection } from "@/hooks/useConnection";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   SafeAreaView,
@@ -144,6 +144,18 @@ export default function Screen() {
       loadData();
     }, []),
   );
+
+  useEffect(() => {
+    const redirect = async () => {
+      const isSync = await appRepository.hasCities();
+      if (!isSync) {
+        router.replace("/sync");
+        return;
+      }
+    };
+
+    redirect();
+  }, []);
 
   const onChangeBusinessCategory = (value: number) => {
     const category = categoriesBusinessContracts.find(

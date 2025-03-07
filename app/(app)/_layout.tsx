@@ -11,6 +11,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { DATABASE_NAME } from "@/utils/Settings";
 import { Redirect } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { styleStore } from "@/styles/styles";
+import {
+  DrawerContentScrollView,
+  DrawerItemList,
+} from "@react-navigation/drawer";
+import { useConnection } from "@/hooks/useConnection";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -20,7 +27,8 @@ export default function AppLayout() {
     SpaceMono: require("../../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  const { authState } = useAuth();
+  const { authState, onLogout } = useAuth();
+  const { isConnected } = useConnection();
 
   useEffect(() => {
     if (loaded) {
@@ -36,6 +44,46 @@ export default function AppLayout() {
     return <Redirect href="/login" />;
   }
 
+  const handleLogout = () => {
+    if (!isConnected) {
+      Alert.alert("Erro!", "Você precisa estar conectado à internet.");
+      return;
+    }
+
+    Alert.alert(
+      "Você tem certeza que deseja sair?",
+      "Você será redirecionado para a tela de login e todas as informações serão APAGADAS.",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Sim",
+          onPress: onLogout,
+        },
+      ],
+    );
+  };
+
+  function CustomDrawerContent(props: any) {
+    return (
+      <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+          <DrawerItemList {...props} />
+        </View>
+        <View>
+          <TouchableOpacity
+            style={styleStore.buttonCancel}
+            onPress={handleLogout}
+          >
+            <Text style={styleStore.buttonText}>Sair</Text>
+          </TouchableOpacity>
+        </View>
+      </DrawerContentScrollView>
+    );
+  }
+
   return (
     <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
       <ThemeProvider value={DefaultTheme}>
@@ -46,6 +94,7 @@ export default function AppLayout() {
               drawerType: "front",
               drawerActiveTintColor: "#1D643B",
             }}
+            drawerContent={(props) => <CustomDrawerContent {...props} />}
           >
             <Drawer.Screen
               name="index" // This is the name of the page and must match the url from root
@@ -84,11 +133,11 @@ export default function AppLayout() {
               }}
             />
             <Drawer.Screen
-              name="config"
+              name="syncContracts"
               options={{
-                title: "Configurações",
+                title: "Sincronizar Contratos",
                 drawerIcon: ({ color, size }) => (
-                  <Ionicons name="game-controller" size={size} color={color} />
+                  <Ionicons name="document-attach" size={size} color={color} />
                 ),
               }}
             />

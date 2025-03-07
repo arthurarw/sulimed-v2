@@ -2,7 +2,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
 import AppService from "@/services/AppService";
-import { router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -16,7 +15,6 @@ import {
 export default function Screen() {
   const [refreshing, setRefreshing] = useState(false);
   const { isConnected } = useConnection();
-  const { onLogout } = useAuth();
 
   const handleSyncContractsClick = () => {
     if (!isConnected) {
@@ -35,28 +33,6 @@ export default function Screen() {
         {
           text: "Sim",
           onPress: handleSyncContracts,
-        },
-      ],
-    );
-  };
-
-  const handleLogout = () => {
-    if (!isConnected) {
-      Alert.alert("Erro!", "Você precisa estar conectado à internet.");
-      return;
-    }
-
-    Alert.alert(
-      "Você tem certeza que deseja sair?",
-      "Você será redirecionado para a tela de login e todas as informações serão APAGADAS.",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Sim",
-          onPress: onLogout,
         },
       ],
     );
@@ -96,9 +72,6 @@ export default function Screen() {
             onPress={handleSyncContractsClick}
           >
             <Text style={styles.buttonText}>Sincronizar Contratos</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonError} onPress={handleLogout}>
-            <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>
         </>
       )}

@@ -10,7 +10,7 @@ import {
 } from "@/types/Database";
 import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Dropdown } from "react-native-element-dropdown";
 import {
@@ -184,6 +184,18 @@ export default function Screen() {
       loadData();
     }, []),
   );
+
+  useEffect(() => {
+    const redirect = async () => {
+      const isSync = await appRepository.hasCities();
+      if (!isSync) {
+        router.replace("/sync");
+        return;
+      }
+    };
+
+    redirect();
+  }, []);
 
   const onChangeCategoriy = (value: number) => {
     const category = categoriesContracts.find((item) => item.id === value);
