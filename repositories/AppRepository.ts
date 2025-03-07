@@ -175,7 +175,7 @@ class AppRepository {
     });
 
     try {
-      const results: BusinessContract[] = await db.getAllAsync('SELECT * FROM contracts WHERE is_company = 1 AND id NOT IN (1,2) AND signature IS NOT NULL AND sync = 0');
+      const results: BusinessContract[] = await db.getAllAsync('SELECT * FROM contracts WHERE is_company = 1 AND signature IS NOT NULL AND sync = 0');
 
       if (!results || results.length === 0) {
         console.log('No contracts to sync.');

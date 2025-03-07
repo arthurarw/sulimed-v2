@@ -1,9 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
+import AppService from "@/services/AppService";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   SafeAreaView,
   StatusBar,
@@ -15,12 +17,6 @@ export default function Screen() {
   const [refreshing, setRefreshing] = useState(false);
   const { isConnected } = useConnection();
   const { onLogout } = useAuth();
-  const [fetchingCities, setFetchingCities] = useState(false);
-  const [fetchingStreets, setFetchingStreets] = useState(false);
-  const [fetchingNeighborhoods, setFetchingNeighborhoods] = useState(false);
-  const [fetchingCategories, setFetchingCategories] = useState(false);
-  const [fetchingCategoriesBusiness, setFetchingCategoriesBusiness] =
-    useState(false);
 
   const handleSyncContractsClick = () => {
     if (!isConnected) {
@@ -67,27 +63,45 @@ export default function Screen() {
   };
 
   const handleSyncContracts = async () => {
-    setRefreshing(true);
-    appRepository.syncBusinessContracts();
-    appRepository.syncIndividualContracts();
-    setRefreshing(false);
-  };
+    const checkConnection = await AppService.fetchCities()
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
 
-  const handleSyncTables = async () => {
-    router.navigate({ pathname: "sync" });
+    if (!checkConnection) {
+      Alert.alert("Erro", "Ooops!! Sem conexão com o servidor.");
+      return;
+    }
+
+    setRefreshing(true);
+    await appRepository.syncBusinessContracts();
+    await appRepository.syncIndividualContracts();
+    setRefreshing(false);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleSyncContractsClick}
-      >
-        <Text style={styles.buttonText}>Sincronizar Contratos</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonError} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
+      {refreshing ? (
+        <>
+          <ActivityIndicator size="large" color="#1D643B" />
+          <Text>Sincronizando...</Text>
+        </>
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSyncContractsClick}
+          >
+            <Text style={styles.buttonText}>Sincronizar Contratos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonError} onPress={handleLogout}>
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </SafeAreaView>
   );
 }

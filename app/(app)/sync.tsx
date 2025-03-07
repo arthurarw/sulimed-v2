@@ -1,5 +1,6 @@
 import { useConnection } from "@/hooks/useConnection";
 import { appRepository } from "@/repositories/AppRepository";
+import AppService from "@/services/AppService";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
@@ -61,17 +62,20 @@ export default function Screen() {
       return;
     }
 
-    await axios
-      .get("http://179.108.169.90:8088/ecard/categoriaContrato")
+    const checkConnection = await AppService.fetchCities()
       .then(() => {
         return true;
       })
       .catch(() => {
-        Alert.alert("Erro", "Ooops!! Sem conexão com o servidor.");
-        setConnectionServer(false);
-        setRefreshing(false);
         return false;
       });
+
+    if (!checkConnection) {
+      Alert.alert("Erro", "Ooops!! Sem conexão com o servidor.");
+      setConnectionServer(false);
+      setRefreshing(false);
+      return;
+    }
 
     setRefreshing(true);
     setConnectionServer(true);
