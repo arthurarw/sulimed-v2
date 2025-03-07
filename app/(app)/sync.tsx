@@ -7,11 +7,13 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
+  Modal,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function Screen() {
@@ -53,8 +55,6 @@ export default function Screen() {
   );
 
   const handleSyncTables = async () => {
-    setRefreshing(true);
-
     const hasNetwork = await isConnected();
     if (!hasNetwork) {
       Alert.alert("Erro", "Ooops!! Sem conexão com a internet.");
@@ -72,6 +72,8 @@ export default function Screen() {
         setRefreshing(false);
         return false;
       });
+
+    setRefreshing(true);
     setConnectionServer(true);
 
     setFetchingCities(false);
@@ -172,22 +174,38 @@ export default function Screen() {
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         refreshing={refreshing}
-        onRefresh={() => setRefreshing(true)}
       />
 
-      {refreshing && (
-        <>
-          <Text>Sincronizando....</Text>
-          <Text>{connectionServer && "Conectado ao servidor..."}</Text>
-          <Text>{fetchingCities && "Cidades OK"}</Text>
-          <Text>{fetchingStreets && "Ruas OK"}</Text>
-          <Text>{fetchingNeighborhoods && "Bairros OK"}</Text>
-          <Text>
-            {fetchingCategoriesBusiness && "Categorias Empresariais OK"}
-          </Text>
-          <Text>{fetchingCategories && "Categorias OK"}</Text>
-        </>
-      )}
+      <>
+        <Modal animationType="slide" transparent={true} visible={refreshing}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <>
+                <Text>
+                  {!connectionServer
+                    ? "Estabelecendo conexão com o servidor..."
+                    : "Conectado ao servidor..."}
+                </Text>
+                <Text>{fetchingCities && "Cidades OK"}</Text>
+                <Text>{fetchingStreets && "Ruas OK"}</Text>
+                <Text>{fetchingNeighborhoods && "Bairros OK"}</Text>
+                <Text>
+                  {fetchingCategoriesBusiness && "Categorias Empresariais OK"}
+                </Text>
+                <Text>{fetchingCategories && "Categorias OK"}</Text>
+              </>
+              {!refreshing && (
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setRefreshing(false)}
+                >
+                  <Text style={styles.buttonText}>Fechar</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </Modal>
+      </>
 
       {refreshing ? (
         <>
@@ -259,6 +277,34 @@ const styles = StyleSheet.create({
     color: "#fff", // White text
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
+  },
+  centeredView: {
+    width: "100%", // Take full width
+    height: "100%", // Take full height
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center", // Center content vertically
+  },
+  modalView: {
+    margin: 20,
+    width: "80%",
+    height: "60%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
     textAlign: "center",
   },
 });
