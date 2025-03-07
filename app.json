@@ -4,7 +4,7 @@
     "slug": "app-sulimed",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo-sulimed-v2.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,7 +16,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo-sulimed-v2.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.appsulimed"
