@@ -11,6 +11,7 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import * as EmailValidator from "email-validator";
 import { appRepository } from "@/repositories/AppRepository";
@@ -18,9 +19,11 @@ import { appRepository } from "@/repositories/AppRepository";
 export default function Screen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const { authState, onLogin } = useAuth();
 
   const login = async () => {
+    setLoading(true);
     if (!email || !password) {
       Alert.alert("Ooops!!", "Preencha todos os campos!");
       return;
@@ -34,6 +37,7 @@ export default function Screen() {
 
     const result = await onLogin(email, password);
     if (result && result.authenticated) {
+      setLoading(false);
       const isSync = await appRepository.hasCities();
       if (!isSync) {
         router.replace("/sync");
@@ -45,6 +49,7 @@ export default function Screen() {
       return;
     }
 
+    setLoading(false);
     Alert.alert("Ooops!!", "Erro ao efetuar o login!");
     return;
   };
@@ -72,9 +77,13 @@ export default function Screen() {
           secureTextEntry
           autoCapitalize="none"
         />
-        <TouchableOpacity style={styleStore.button} onPress={login}>
-          <Text style={styleStore.buttonText}>Entrar</Text>
-        </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color="##1D643B" />
+        ) : (
+          <TouchableOpacity style={styleStore.button} onPress={login}>
+            <Text style={styleStore.buttonText}>Entrar</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );

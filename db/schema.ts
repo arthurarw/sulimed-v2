@@ -1,7 +1,7 @@
 import * as SQLite from "expo-sqlite";
 
 export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
-  const DATABASE_VERSION = 13;
+  const DATABASE_VERSION = 14;
 
   const result = await database.getFirstAsync<{ user_version: number } | null>(
     'PRAGMA user_version'
@@ -29,7 +29,6 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
   await database.execAsync(`DROP TABLE IF EXISTS dependents;`);
 
   console.log("Creating tables...");
-
   await database.execAsync(`
         CREATE TABLE IF NOT EXISTS contract_categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,7 +143,6 @@ export async function initializeDatabase(database: SQLite.SQLiteDatabase) {
       );
     `);
 
-  //currentDbVersion = 1;
-  console.log(`Database updated to version ${currentDbVersion}`);
+  console.log(`Database updated to version ${DATABASE_VERSION}`);
   await database.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }

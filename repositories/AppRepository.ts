@@ -739,8 +739,10 @@ class AppRepository {
     });
 
     try {
+      console.log('Dropping tables...');
       await db.execAsync(`DROP TABLE IF EXISTS contracts;`);
       await db.execAsync(`DROP TABLE IF EXISTS dependents;`);
+      console.log('Tables dropped.');
       return true;
     } catch (error) {
       throw error;
