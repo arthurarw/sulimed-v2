@@ -38,12 +38,6 @@ export default function Screen() {
     const result = await onLogin(email, password);
     if (result && result.authenticated) {
       setLoading(false);
-      const isSync = await appRepository.hasCities();
-      if (!isSync) {
-        router.replace("/sync");
-        return;
-      }
-
       router.replace("/");
       Alert.alert("Sucesso", "Login efetuado com sucesso");
       return;

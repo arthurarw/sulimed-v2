@@ -147,8 +147,8 @@ export default function Screen() {
 
   useEffect(() => {
     const redirect = async () => {
-      const isSync = await appRepository.hasCities();
-      if (!isSync) {
+      const needToSync = await appRepository.needToSync();
+      if (needToSync) {
         router.replace("/sync");
         return;
       }

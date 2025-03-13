@@ -340,6 +340,82 @@ class AppRepository {
     }
   }
 
+  public async hasNeighborhoods() {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+      useNewConnection: true
+    });
+
+    try {
+      const query = "SELECT id, name FROM neighborhoods ORDER BY name ASC";
+      const results: LocalNeighborhood[] = await db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async hasStreets() {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+      useNewConnection: true
+    });
+
+    try {
+      const query = "SELECT id, name FROM streets ORDER BY name ASC";
+      const results: LocalCity[] = await db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async hasCategoriesContract() {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+      useNewConnection: true
+    });
+
+    try {
+      const query = "SELECT id, description, price FROM contract_categories ORDER BY description ASC";
+      const results: LocalCategory[] = await db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async hasCategoriesBusinessContracts() {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+      useNewConnection: true
+    });
+
+    try {
+      const query = "SELECT id, description, price, max_colabs FROM contract_business_categories ORDER BY description ASC";
+      const results: LocalCategory[] = await db.getAllAsync(query);
+
+      if (!results || results.length === 0) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async fetchCategoriesBusinessContracts() {
     const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
       useNewConnection: true
@@ -744,6 +820,40 @@ class AppRepository {
       await db.execAsync(`DROP TABLE IF EXISTS dependents;`);
       console.log('Tables dropped.');
       return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async needToSync() {
+    try {
+      const hasCities = await this.hasCities();
+      if (!hasCities) {
+        return true;
+      }
+
+      const hasNeighborhoods = await this.hasNeighborhoods();
+      if (!hasNeighborhoods) {
+        return true;
+      }
+
+
+      const hasStreets = await this.hasStreets();
+      if (!hasStreets) {
+        return true;
+      }
+
+      const hasCategoriesContract = await this.hasCategoriesContract();
+      if (!hasCategoriesContract) {
+        return true;
+      }
+
+      const hasCategoriesBusinessContracts = await this.hasCategoriesBusinessContracts();
+      if (!hasCategoriesBusinessContracts) {
+        return true;
+      }
+
+      return false;
     } catch (error) {
       throw error;
     }
