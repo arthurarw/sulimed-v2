@@ -23,6 +23,7 @@ export default function Screen() {
   const [paymentMethod, setPaymentMethod] = useState("");
 
   const paymentMethods = [
+    { label: "Boleto Bancário", id: "B" },
     { label: "Cartão de Crédito", id: "CC" },
     { label: "Conta de Energia", id: "N" },
   ];
@@ -58,6 +59,8 @@ export default function Screen() {
       dealership_id: "",
       unity_consumer: "",
       due_account_date: "",
+      bankslip_installments: "",
+      bankslip_due_date: "",
     },
   });
 
@@ -122,6 +125,86 @@ export default function Screen() {
           <Text style={styleStore.errorText}>
             {errors.payment_method.message}
           </Text>
+        )}
+
+        {paymentMethod === "B" && (
+          <>
+            <Controller
+              control={control}
+              rules={{
+                required: "A data de vencimento do boleto é obrigatória.",
+                validate: (value) => {
+                  const date = value.split("/");
+                  if (date.length !== 3) {
+                    return false;
+                  }
+                  const day = parseInt(date[0]);
+                  const month = parseInt(date[1]);
+                  const year = parseInt(date[2]);
+                  return (
+                    day > 0 && day < 32 && month > 0 && month < 13 && year > 0
+                  );
+                },
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <MaskedTextInput
+                  style={styleStore.input}
+                  placeholder="Data de Vencimento do Boleto"
+                  value={value}
+                  mask="99/99/9999"
+                  onChangeText={onChange}
+                  keyboardType="phone-pad"
+                  onBlur={onBlur}
+                />
+              )}
+              name="bankslip_due_date"
+            />
+            {errors.bankslip_due_date && (
+              <Text style={styleStore.errorText}>
+                {errors.bankslip_due_date.message}
+              </Text>
+            )}
+            <Controller
+              control={control}
+              rules={{ required: "O campo é obrigatório.", min: 1, max: 12 }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={styleStore.input}
+                  placeholder="Digite o número de Parcelas"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="phone-pad"
+                />
+              )}
+              name="bankslip_installments"
+            />
+            {errors.bankslip_installments && (
+              <Text style={styleStore.errorText}>
+                {errors.bankslip_installments.message}
+              </Text>
+            )}
+            <Controller
+              control={control}
+              rules={{ required: "O campo é obrigatório." }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={styleStore.input}
+                  placeholder="Taxa de Adesão"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="phone-pad"
+                />
+              )}
+              name="membership_fee"
+            />
+            {errors.membership_fee && (
+              <Text style={styleStore.errorText}>
+                {errors.membership_fee.message}
+              </Text>
+            )}
+          </>
         )}
 
         {paymentMethod === "CC" && (

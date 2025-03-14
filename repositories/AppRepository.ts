@@ -785,7 +785,7 @@ class AppRepository {
     });
 
     const statement = await db.prepareAsync(
-      "UPDATE contracts SET payment_method = $payment_method, membership_fee = $membership_fee, account_holder_name = $account_holder_name, account_holder_type = $account_holder_type, account_document = $account_document, account_document_2 = $account_document_2, installation_partner = $installation_partner, dealership_id = $dealership_id, unity_consumer = $unity_consumer, due_account_date = $due_account_date WHERE id = $id",
+      "UPDATE contracts SET payment_method = $payment_method, membership_fee = $membership_fee, account_holder_name = $account_holder_name, account_holder_type = $account_holder_type, account_document = $account_document, account_document_2 = $account_document_2, installation_partner = $installation_partner, dealership_id = $dealership_id, unity_consumer = $unity_consumer, due_account_date = $due_account_date, bankslip_installments = $bankslip_installments, bankslip_due_date = $bankslip_due_date WHERE id = $id",
     );
 
     try {
@@ -801,6 +801,8 @@ class AppRepository {
         $dealership_id: data.dealership_id ?? '',
         $unity_consumer: data.unity_consumer ?? '',
         $due_account_date: data.due_account_date ?? '',
+        $bankslip_installments: data.bankslip_installments ?? '',
+        $bankslip_due_date: data.bankslip_due_date ?? '',
       });
     } catch (error) {
       throw error;

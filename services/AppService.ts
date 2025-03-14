@@ -159,6 +159,27 @@ class AppApi {
     try {
       const isCompany = body.person_type === "J";
       const isCreditCard = body.payment_method === "CC";
+      const isBankSlip = body.payment_method === "B";
+
+      const installmentsBankslip = () => {
+        if (isBankSlip) {
+          return body.bankslip_installments;
+        }
+
+        if (isCreditCard) {
+          return 1;
+        }
+
+        return null
+      }
+
+      const installmentsBankslipGenerated = () => {
+        if (isCreditCard || isBankSlip) {
+          return "N";
+        }
+
+        return null;
+      }
 
       let payload = {
         "idContrato": null,
@@ -182,21 +203,22 @@ class AppApi {
         "idCidadeNaturalidade": body.naturality_city,
         "dtInsercao": formatBrazilTime(),
         "obsCadastroRemoto": body.observation_remote,
-        "boleto": isCreditCard ? "CC" : "N",
-        "boletoParcelas": isCreditCard ? 1 : null,
-        "valorTaxaAdesao": isCreditCard ? body.membership_fee : null,
-        "boletoParcelaGerada": isCreditCard ? "N" : null,
-        "mensalista": isCreditCard ? "N" : "S",
-        "codigoConcessionaria": isCreditCard ? null : body.dealership_id,
-        "unidadeConsumidora": isCreditCard ? null : body.unity_consumer,
-        "titularDaConta": isCreditCard ? null : body.account_holder_name,
-        "tipoPessoaTitular": isCreditCard ? null : "F",
-        "cpfCnpjTitularConta": isCreditCard ? null : body.account_document,
-        "rgIeTitularConta": isCreditCard ? null : body.account_document_2,
-        "parceiroNegocioInstalacao": isCreditCard ? null : body.installation_partner,
-        "dtVencimentoConta": isCreditCard ? null : convertBrazilianDate(body.due_account_date),
-        "acaoCadastro": isCreditCard ? null : "I",
-        "acaoEnviada": isCreditCard ? null : "N",
+        "boleto": body.payment_method,
+        "boletoParcelas": installmentsBankslip(),
+        "valorTaxaAdesao": isCreditCard || isBankSlip ? body.membership_fee : null,
+        "boletoParcelaGerada": installmentsBankslipGenerated(),
+        "mensalista": isCreditCard || isBankSlip ? "N" : "S",
+        "codigoConcessionaria": isCreditCard || isBankSlip ? null : body.dealership_id,
+        "unidadeConsumidora": isCreditCard || isBankSlip ? null : body.unity_consumer,
+        "titularDaConta": isCreditCard || isBankSlip ? null : body.account_holder_name,
+        "tipoPessoaTitular": isCreditCard || isBankSlip ? null : "F",
+        "cpfCnpjTitularConta": isCreditCard || isBankSlip ? null : body.account_document,
+        "rgIeTitularConta": isCreditCard || isBankSlip ? null : body.account_document_2,
+        "parceiroNegocioInstalacao": isCreditCard || isBankSlip ? null : body.installation_partner,
+        "dtVencimentoConta": isCreditCard || isBankSlip ? null : convertBrazilianDate(body.due_account_date),
+        "acaoCadastro": isCreditCard || isBankSlip ? null : "I",
+        "acaoEnviada": isCreditCard || isBankSlip ? null : "N",
+        "boletoPrimeiroVencimento": isBankSlip ? convertBrazilianDate(body.bankslip_due_date) : null,
         "pessoa": {
           "idPessoa": null,
           "ativa": "S",

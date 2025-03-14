@@ -206,4 +206,5 @@ export interface IndividualContract {
   dependents: LocalDependents[] | null;
   payment_method: string | null;
   due_account_date: string | null;
+  bankslip_due_date: string | null;
 }
