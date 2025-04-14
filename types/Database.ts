@@ -145,6 +145,7 @@ export interface BusinessContract {
   action_registration_send: string | null;
   installation_partner: string | null;
   birthday: string | null;
+  card_number: string | null;
 }
 
 export interface IndividualContract {
@@ -207,4 +208,5 @@ export interface IndividualContract {
   payment_method: string | null;
   due_account_date: string | null;
   bankslip_due_date: string | null;
+  card_number: string | null;
 }

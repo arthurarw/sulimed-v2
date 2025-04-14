@@ -125,6 +125,7 @@ export default function Screen() {
       gender: "",
       civil_state: "",
       company_fundation_at: "",
+      card_number: "",
     },
   });
 
@@ -214,6 +215,26 @@ export default function Screen() {
         <ActivityIndicator size={"large"} color={"#1D643B"} />
       ) : (
         <ScrollView>
+          <Controller
+            control={control}
+            rules={{ required: "O Número do cartão é obrigatório." }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styleStore.input}
+                placeholder="Número do Cartão"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+            name="card_number"
+          />
+          {errors.card_number && (
+            <Text style={styleStore.errorText}>
+              {errors.card_number.message}
+            </Text>
+          )}
+
           <Controller
             control={control}
             rules={{ required: "A categoria do contrato é obrigatória." }}

@@ -219,6 +219,7 @@ class AppApi {
         "acaoCadastro": isCreditCard || isBankSlip ? null : "I",
         "acaoEnviada": isCreditCard || isBankSlip ? null : "N",
         "boletoPrimeiroVencimento": isBankSlip ? convertBrazilianDate(body.bankslip_due_date) : null,
+        "nroCartao": body.card_number ?? null,
         "pessoa": {
           "idPessoa": null,
           "ativa": "S",

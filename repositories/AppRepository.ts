@@ -51,7 +51,6 @@ class AppRepository {
 
       return { insertedRowId };
     } catch (error) {
-      console.log('Errouuuu', error);
       throw error;
     } finally {
       await statement.finalizeAsync();
@@ -64,7 +63,7 @@ class AppRepository {
     });
 
     const statement = await db.prepareAsync(
-      "INSERT INTO contracts (is_company,category_id,mensality_price,colab_id,phone_1,phone_2,observation_phone_1,observation_phone_2,name,document,document_2,type,email,zipcode,street_id,neighborhood_id,number,city_id,created_at,sale_at,contract_at,person_nickname,person_type,company_fundation_at,observation_remote,sync,observation,father_name,mother_name,parents_address,naturality_city,birthday,dealership_id,gender,civil_state) VALUES ($is_company,$category_id,$mensality_price,$colab_id,$phone_1,$phone_2,$observation_phone_1,$observation_phone_2,$name,$document,$document_2,$type,$email,$zipcode,$street_id,$neighborhood_id,$number,$city_id,$created_at,$sale_at,$contract_at,$person_nickname,$person_type,$company_fundation_at,$observation_remote,$sync,$observation,$father_name,$mother_name,$parents_address,$naturality_city,$birthday,$dealership_id,$gender,$civil_state)"
+      "INSERT INTO contracts (is_company,category_id,mensality_price,colab_id,phone_1,phone_2,observation_phone_1,observation_phone_2,name,document,document_2,type,email,zipcode,street_id,neighborhood_id,number,city_id,created_at,sale_at,contract_at,person_nickname,person_type,company_fundation_at,observation_remote,sync,observation,father_name,mother_name,parents_address,naturality_city,birthday,dealership_id,gender,civil_state,card_number) VALUES ($is_company,$category_id,$mensality_price,$colab_id,$phone_1,$phone_2,$observation_phone_1,$observation_phone_2,$name,$document,$document_2,$type,$email,$zipcode,$street_id,$neighborhood_id,$number,$city_id,$created_at,$sale_at,$contract_at,$person_nickname,$person_type,$company_fundation_at,$observation_remote,$sync,$observation,$father_name,$mother_name,$parents_address,$naturality_city,$birthday,$dealership_id,$gender,$civil_state,$card_number)"
     );
 
     try {
@@ -104,6 +103,7 @@ class AppRepository {
         $dealership_id: data.dealership_id ?? '',
         $gender: data.gender ?? '',
         $civil_state: data.civil_state ?? '',
+        $card_number: data.card_number ?? ''
       });
 
       const insertedRowId = result.lastInsertRowId.toLocaleString();
