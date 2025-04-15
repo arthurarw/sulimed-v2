@@ -25,6 +25,8 @@ import {
 } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import { appRepository } from "@/repositories/AppRepository";
+import ModalStreet from "@/components/ModalStoreStreet";
+import ModalNeighborhood from "@/components/ModalStoreNeighborhood";
 
 export default function Screen() {
   const { authState } = useAuth();
@@ -43,6 +45,8 @@ export default function Screen() {
   const [neighborhoods, setNeighborhoods] = useState<LocalNeighborhood[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCompany, setIsCompany] = useState(false);
+  const [isOpenStreetModal, setIsOpenStreetModal] = useState(false);
+  const [isOpenNeighborhoodModal, setIsOpenNeighborhoodModal] = useState(false);
 
   const civilState = [
     {
@@ -132,6 +136,12 @@ export default function Screen() {
   const handleCancel = () => {
     reset();
     return router.push("/");
+  };
+
+  const closeModal = () => {
+    setIsOpenStreetModal(false);
+    setIsOpenNeighborhoodModal(false);
+    loadData();
   };
 
   const onSubmit = async (data: any) => {
@@ -719,6 +729,9 @@ export default function Screen() {
             )}
             name="street_id"
           />
+          <TouchableOpacity onPress={() => setIsOpenStreetModal(true)}>
+            <Text style={styleStore.textInsert}>Inserir uma nova rua</Text>
+          </TouchableOpacity>
           {errors.street_id && (
             <Text style={styleStore.errorText}>{errors.street_id.message}</Text>
           )}
@@ -748,6 +761,9 @@ export default function Screen() {
             )}
             name="neighborhood_id"
           />
+          <TouchableOpacity onPress={() => setIsOpenNeighborhoodModal(true)}>
+            <Text style={styleStore.textInsert}>Inserir um novo bairro</Text>
+          </TouchableOpacity>
           {errors.neighborhood_id && (
             <Text style={styleStore.errorText}>
               {errors.neighborhood_id.message}
@@ -1005,6 +1021,17 @@ export default function Screen() {
           </View>
         </ScrollView>
       )}
+
+      <ModalStreet
+        isOpen={isOpenStreetModal}
+        onClose={closeModal}
+        isDismissable={true}
+      />
+      <ModalNeighborhood
+        isOpen={isOpenNeighborhoodModal}
+        onClose={closeModal}
+        isDismissable={true}
+      />
     </SafeAreaView>
   );
 }

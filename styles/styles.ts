@@ -94,4 +94,12 @@ export const styleStore = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 8,
   },
+  textInsert: {
+    fontSize: 14,
+    textAlign: "center",
+    textDecorationStyle: "solid",
+    marginTop: -10,
+    marginBottom: 20,
+    fontWeight: "bold",
+  }
 });

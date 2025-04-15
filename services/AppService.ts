@@ -1,5 +1,6 @@
+import { appRepository } from '@/repositories/AppRepository';
 import { BusinessContract, IndividualContract } from '@/types/Database';
-import { City, ContractBusinessCategories, ContractCategories, Neighborhood, Street } from '@/types/Ecard';
+import { City, ContractBusinessCategories, ContractCategories, Neighborhood, StoreNeighborhood, StoreStreet, Street } from '@/types/Ecard';
 import { convertBrazilianDate, formatBrazilDate, formatBrazilDateTimeNew, formatBrazilTime } from '@/utils/String';
 import axios, { AxiosInstance } from 'axios';
 
@@ -151,6 +152,37 @@ class AppApi {
       return data;
     } catch (error) {
       console.log(error);
+      throw error;
+    }
+  }
+
+  public async storeNeighborhood(name: string): Promise<StoreNeighborhood> {
+    try {
+      const { data } = await this.client.post('/insereBairro', {
+        nmBairro: name,
+        idCidade: null
+      });
+
+      await appRepository.storeNeighborhood(data.idBairro, name);
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  public async storeStreet(name: string): Promise<StoreStreet> {
+    try {
+      const { data } = await this.client.post('/insereRua', {
+        nmRua: name,
+        idCidade: null
+      });
+
+      await appRepository.storeStreet(data.idRua, name);
+
+      return data;
+    } catch (error) {
       throw error;
     }
   }

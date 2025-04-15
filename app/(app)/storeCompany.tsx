@@ -25,6 +25,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { appRepository } from "@/repositories/AppRepository";
 import { Dropdown } from "react-native-element-dropdown";
 import { useFocusEffect } from "@react-navigation/native";
+import ModalStreet from "@/components/ModalStoreStreet";
+import ModalNeighborhood from "@/components/ModalStoreNeighborhood";
 
 export default function Screen() {
   const { authState } = useAuth();
@@ -45,6 +47,8 @@ export default function Screen() {
   const [streets, setStreets] = useState<LocalStreet[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<LocalNeighborhood[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenStreetModal, setIsOpenStreetModal] = useState(false);
+  const [isOpenNeighborhoodModal, setIsOpenNeighborhoodModal] = useState(false);
 
   const {
     control,
@@ -120,6 +124,12 @@ export default function Screen() {
       console.log(error);
       Alert.alert("Erro", "Ooops!! Ocorreu um erro ao salvar o cliente.");
     }
+  };
+
+  const closeModal = () => {
+    setIsOpenStreetModal(false);
+    setIsOpenNeighborhoodModal(false);
+    loadData();
   };
 
   const loadData = async () => {
@@ -504,6 +514,9 @@ export default function Screen() {
             )}
             name="street_id"
           />
+          <TouchableOpacity onPress={() => setIsOpenStreetModal(true)}>
+            <Text style={styleStore.textInsert}>Inserir uma nova rua</Text>
+          </TouchableOpacity>
           {errors.street_id && (
             <Text style={styleStore.errorText}>{errors.street_id.message}</Text>
           )}
@@ -533,6 +546,9 @@ export default function Screen() {
             )}
             name="neighborhood_id"
           />
+          <TouchableOpacity onPress={() => setIsOpenNeighborhoodModal(true)}>
+            <Text style={styleStore.textInsert}>Inserir um novo bairro</Text>
+          </TouchableOpacity>
           {errors.neighborhood_id && (
             <Text style={styleStore.errorText}>
               {errors.neighborhood_id.message}
@@ -756,6 +772,17 @@ export default function Screen() {
           </View>
         </ScrollView>
       )}
+
+      <ModalStreet
+        isOpen={isOpenStreetModal}
+        onClose={closeModal}
+        isDismissable={true}
+      />
+      <ModalNeighborhood
+        isOpen={isOpenNeighborhoodModal}
+        onClose={closeModal}
+        isDismissable={true}
+      />
     </SafeAreaView>
   );
 }

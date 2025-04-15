@@ -28,6 +28,14 @@ export interface ContractBusinessCategories {
   valor: string;
 }
 
+export interface StoreStreet {
+  idRua: number;
+}
+
+export interface StoreNeighborhood {
+  idBairro: number;
+}
+
 export interface StoreContract {
   idPessoa: number;
   filial: number;
