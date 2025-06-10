@@ -50,6 +50,12 @@ export default function Screen() {
             <Text>CPF/CNPJ: {String(contract.document)}</Text>
             <Text>Data de Cadastro: {contract.created_at}</Text>
             <Text>Contrato assinado: {contract.signature ? "SIM" : "NÃO"}</Text>
+            <Text>
+              ID Contrato:{" "}
+              {Number(contract.remote_contract_id)
+                ? Number(contract.remote_contract_id)
+                : "-"}
+            </Text>
           </View>
           <TouchableOpacity
             style={

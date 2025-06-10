@@ -59,6 +59,7 @@ export interface Contract {
   action_registration_send: string;
   installation_partner: string;
   sync: boolean;
+  remote_contract_id: number | string | null;
 }
 
 export interface LocalCity {

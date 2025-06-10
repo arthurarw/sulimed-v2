@@ -117,19 +117,20 @@ class AppRepository {
     }
   }
 
-  public async setContractSyncConcluded(id: number) {
+  public async setContractSyncConcluded(id: number, contractId: number) {
     const db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
       useNewConnection: true
     });
 
     const statement = await db.prepareAsync(
-      "UPDATE contracts SET sync = $sync, sync_at = $sync_at WHERE id = $id",
+      "UPDATE contracts SET sync = $sync, sync_at = $sync_at, remote_contract_id = $remote_contract_id WHERE id = $id",
     );
 
     try {
       await statement.executeAsync({
         $id: id,
         $sync: true,
+        $remote_contract_id: contractId,
         $sync_at: formatBrazilTime(),
       });
     } catch (error) {
@@ -194,7 +195,7 @@ class AppRepository {
             await AppService.sendSignature(contractId, contract.signature, true);
           }
 
-          await this.setContractSyncConcluded(contract.id);
+          await this.setContractSyncConcluded(contract.id, Number(contractId));
         }).catch((error) => {
           console.log('ERROR', error);
         });
@@ -240,7 +241,7 @@ class AppRepository {
             await AppService.sendSignature(contractId, contract.signature);
           }
 
-          await this.setContractSyncConcluded(contract.id);
+          await this.setContractSyncConcluded(contract.id, Number(contractId));
         }).catch((error) => {
           console.log('ERROR', error);
         });

@@ -56,6 +56,8 @@ export default function Screen() {
     await appRepository.syncBusinessContracts();
     await appRepository.syncIndividualContracts();
     setRefreshing(false);
+    Alert.alert("Sucesso", "Contratos sincronizados com sucesso!");
+    return;
   };
 
   return (
