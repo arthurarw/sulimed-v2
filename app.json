@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sulimed",
     "slug": "app-sulimed",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "orientation": "portrait",
     "icon": "./assets/images/playstore-icon.png",
     "scheme": "myapp",
@@ -39,11 +39,14 @@
       ],
       "expo-sqlite",
       "expo-secure-store",
-      ["expo-build-properties", {
-        "android": {
-          "usesCleartextTraffic": true
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
         }
-      }]
+      ]
     ],
     "experiments": {
       "typedRoutes": true
