@@ -216,7 +216,7 @@ class AppApi {
       let payload = {
         "idContrato": null,
         "filial": 1,
-        "preContrato": body.pre_contract ?? 'A',
+        "preContrato": "S",
         "ativo": "S",
         "dtVenda": convertBrazilianDate(body.sale_at),
         "dtContrato": convertBrazilianDate(body.contract_at),

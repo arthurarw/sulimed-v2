@@ -6,6 +6,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -198,7 +199,13 @@ export default function Screen() {
                 </Text>
                 <Text>{fetchingCategories && "Categorias OK"}</Text>
               </>
-              {!refreshing && (
+
+              {refreshing ? (
+                <>
+                  <ActivityIndicator size="large" color="#1D643B" />
+                  <Text>Sincronizando...</Text>
+                </>
+              ) : (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => setRefreshing(false)}

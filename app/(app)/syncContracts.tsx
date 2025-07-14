@@ -53,8 +53,10 @@ export default function Screen() {
     }
 
     setRefreshing(true);
-    await appRepository.syncBusinessContracts();
-    await appRepository.syncIndividualContracts();
+    await Promise.all([
+      await appRepository.syncBusinessContracts(),
+      await appRepository.syncIndividualContracts(),
+    ]);
     setRefreshing(false);
     Alert.alert("Sucesso", "Contratos sincronizados com sucesso!");
     return;
