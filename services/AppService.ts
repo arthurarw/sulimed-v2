@@ -9,7 +9,7 @@ class AppApi {
 
   constructor() {
     this.client = axios.create({
-      baseURL: 'http://179.108.169.90:3366/ecard',
+      baseURL: 'http://sulimed.theworkpc.com:3366/ecard',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
